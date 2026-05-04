@@ -4,83 +4,69 @@ import { useState } from "react";
 import confetti from "canvas-confetti";
 import "./style.css";
 
+import Wheel from "./components/Wheel";
+import NumberPicker from "./components/NumberPicker";
+import BetInput from "./components/BetInput";
+
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
   const [balance, setBalance] = useState(100);
   const [bet, setBet] = useState(10);
+  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
 
   function spin() {
-    if (bet > balance) return;
+    if (bet > balance || selectedNumber === null) return;
 
-    const values = [0, 2, 3, 5];
+    const values = [1, 2, 3, 4, 5, 6];
     const random = values[Math.floor(Math.random() * values.length)];
 
-    // 🎡 snurra (3 varv + lite extra)
     const newRotation = rotation + 1080 + Math.random() * 360;
     setRotation(newRotation);
 
     setTimeout(() => {
       setResult(random);
 
-      if (random === 0) {
-        setBalance((prev) => prev - bet);
-      } else {
-        setBalance((prev) => prev + bet * random);
-      }
+      if (random === selectedNumber) {
+        setBalance((prev) => prev + bet * 2);
 
-      if (random > 0) {
         confetti({
           particleCount: 150,
           spread: 120,
         });
+      } else {
+        setBalance((prev) => prev - bet);
       }
     }, 2000);
   }
 
   return (
     <div className="container">
-      <h1>🍫 Chocolate Wheel</h1>
+      <h1>Chocolate Wheel</h1>
 
-      <p>💰 Balance: {balance}€</p>
-
-      <input
-        type="number"
-        value={bet}
-        onChange={(e) => setBet(Number(e.target.value))}
+      <BetInput
+        bet={bet}
+        balance={balance}
+        onChange={setBet}
       />
 
-      <div className="wheel-container">
-        <div className="pointer">▼</div>
+      <NumberPicker
+        selected={selectedNumber}
+        onSelect={setSelectedNumber}
+      />
 
-        <div
-          className="wheel"
-          style={{
-            transform: `rotate(${rotation}deg)`,
-          }}
-        >
-          {[1, 2, 3, 4, 5, 6].map((num, i) => {
-            const angle = i * 60;
+      <Wheel rotation={rotation} />
 
-            return (
-              <span
-                key={num}
-                className="slice-text"
-                style={{
-                  transform: `rotate(${angle}deg) translate(80px) rotate(-${angle}deg)`,
-                }}
-              >
-                {num}
-              </span>
-            );
-          })}
-        </div>
-      </div>
-
-      <button onClick={spin}>SPIN</button>
+      <button onClick={spin} disabled={selectedNumber === null}>
+        SPIN
+      </button>
 
       {result !== null && (
-        <p>{result === 0 ? "😢 You lost" : `🎉 You won x${result}`}</p>
+        <p>
+          {result === selectedNumber
+            ? `🎉 You won! It landed on ${result}`
+            : `😢 You lost! It landed on ${result}`}
+        </p>
       )}
     </div>
   );
