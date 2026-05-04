@@ -21,7 +21,16 @@ export default function ChocolateWheel() {
     const values = [1, 2, 3, 4, 5, 6];
     const random = values[Math.floor(Math.random() * values.length)];
 
-    const newRotation = rotation + 1080 + Math.random() * 360;
+    
+    const sliceSize = 60; // 360 / 6
+    const targetAngle = (random - 1) * sliceSize;
+    const offset = sliceSize / 2;
+
+    const pointerAngle = 270;
+
+    const newRotation =
+      rotation + 1080 + (pointerAngle - targetAngle - (rotation % 360));
+
     setRotation(newRotation);
 
     setTimeout(() => {
@@ -42,7 +51,7 @@ export default function ChocolateWheel() {
 
   return (
     <div className="container">
-      <h1>Chocolate Wheel</h1>
+      <h1>🍫 Chocolate Wheel</h1>
 
       <BetInput
         bet={bet}
