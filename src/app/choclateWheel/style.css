@@ -1,0 +1,42 @@
+.wheel-container {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin: 20px auto;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 6px solid black;
+  position: relative;
+
+  background: conic-gradient(
+    #ffcc00 0deg 60deg,
+    #ff6666 60deg 120deg,
+    #66ccff 120deg 180deg,
+    #99ff99 180deg 240deg,
+    #ff99ff 240deg 300deg,
+    #ffaa66 300deg 360deg
+  );
+
+  transition: transform 2s ease-out;
+}
+
+.pointer {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+}
+
+/*  numbers */
+.slice-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+  font-weight: bold;
+}
