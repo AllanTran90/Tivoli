@@ -1,39 +1,38 @@
 # 🎡 Tivoli – MoSCoW (Allan & Alex)
 
-## 🟥 MUST HAVE (Måste finnas)
-- Spel fungerar (t.ex. coin flip / dice)
-- Användaren kan spela spelet
-- Kostar pengar att spela
-- Ger vinst/förlust
-- Ger en stamp efter spel
-- Koppling till centralbank API
-- Deployad version (live URL)
+## 🟥 MUST HAVE
+- Game works (e.g. coin flip / dice)
+- User can play the game
+- Costs money to play
+- Provides win/loss outcome
+- Gives a stamp after each game
+- Integration with central bank API
+- Deployed version (live URL)
 
 ---
 
-## 🟧 SHOULD HAVE (Bör finnas)
-- Snygg UI med CSS
-- Visa saldo (pengar)
-- Visa senaste resultat
-- Enkla animationer (CSS)
-- Felhantering (om API failar)
+## 🟧 SHOULD HAVE
+- Nice UI with CSS
+- Display balance (money)
+- Show latest result
+- Simple animations (CSS)
+- Error handling (if API fails)
 
 ---
 
-## 🟨 COULD HAVE (Nice to have)
-- Ljud (vinst/förlust)
-- Fler spellägen
-- Statistik (antal vinster/förluster)
+## 🟨 COULD HAVE
+- Sound effects (win/loss)
+- More game modes
+- Statistics (number of wins/losses)
 - Leaderboard
-- Coola CSS-animationer
+- Advanced CSS animations
 
 ---
 
-## ⬜ WON’T HAVE (Inte nu)
+## ⬜ WON’T HAVE (for now)
 - Multiplayer
-- Avancerad AI
-- Komplex backend-logik
-- Eget login-system
+- Advanced AI
+- Complex backend logic
+- Custom authentication system
 
 ---
-
