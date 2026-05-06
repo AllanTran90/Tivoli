@@ -1,7 +1,7 @@
 .wheel-container {
   position: relative;
-  width: 240px;
-  height: 240px;
+  width: 400px;
+  height: 400px;
   margin: 20px auto;
 }
 
@@ -21,7 +21,7 @@
     #ffaa66 300deg 360deg
   );
 
-  transition: transform 2s ease-out;
+  transition: transform 1.2s ease-out;
 }
 
 .pointer {
@@ -39,4 +39,95 @@
   left: 50%;
   transform-origin: center;
   font-weight: bold;
+  transform: translate(-50%, -50%); 
+}
+
+.number-button {
+  width: 100px;
+  height: 100px;
+  font-size: 50px;
+  margin: 8px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+
+  background: #222;
+  color: white;
+
+  transition: all 0.2s ease;
+}
+
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 12px;
+  justify-items: center;
+  margin: 20px auto;
+  max-width: 250px;
+}
+
+/* hover */
+.number-button:hover {
+  transform: scale(1.15);
+  background: gold;
+  color: black;
+}
+
+/* selected */
+.number-button.selected {
+  background: limegreen;
+  color: black;
+  box-shadow: 0 0 12px lime;
+}
+
+.spin {
+  padding: 18px 40px;
+  font-size: 26px;
+  background: linear-gradient(45deg, gold, orange);
+  color: black;
+  border-radius: 10px;
+  margin-top: 25px;
+  font-weight: bold;
+
+  box-shadow: 0 0 20px gold;
+}
+
+.spin:hover {
+  transform: scale(1.1);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 250px 1fr 250px;
+  gap: 40px;
+  padding: 40px;
+}
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* .center-panel */
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* .right-panel */
+.right-panel {
+  background: #111;
+  padding: 20px;
+  border-radius: 10px;
+  height: fit-content;
+  color: white;
+}
+
+/* history list */
+.history-item {
+  margin: 5px 0;
+  font-size: 14px;
 }

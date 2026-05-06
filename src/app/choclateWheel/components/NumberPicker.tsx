@@ -8,18 +8,19 @@ export default function NumberPicker({ selected, onSelect }: Props) {
     <div>
       <p>Choose a number:</p>
 
-      {[1, 2, 3, 4, 5, 6].map((num) => (
-        <button
-          key={num}
-          onClick={() => onSelect(num)}
-          style={{
-            margin: "5px",
-            backgroundColor: selected === num ? "green" : "white",
-          }}
-        >
-          {num}
-        </button>
-      ))}
+      <div className="number-grid">
+        {[1, 2, 3, 4, 5, 6].map((num) => (
+          <button
+            key={num}
+            onClick={() => onSelect(num)}
+            className={`number-button ${
+              selected === num ? "selected" : ""
+            }`}
+          >
+            {num}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
