@@ -3,15 +3,15 @@
 import { useState } from "react";
 import confetti from "canvas-confetti";
 import "./style.css";
-
 import Wheel from "./components/Wheel";
 import NumberPicker from "./components/NumberPicker";
 import BetInput from "./components/BetInput";
+import { useWallet } from "@/context/WalletContext";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
-  const [balance, setBalance] = useState(150);
+  const {balance, setBalance} = useWallet();
   const [bet, setBet] = useState(5);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
