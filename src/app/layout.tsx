@@ -1,6 +1,7 @@
-import Link from "next/link";
+
 import "./globals.css";
 import { WalletProvider } from "@/context/WalletContext";
+import Navbar from "@/components/Navbar";
 
 export default function RootLayout({
   children,
@@ -11,12 +12,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <WalletProvider>
-          <nav>
-            <Link href="/">Home</Link>
-            <Link href="/games">Games</Link>
-            <Link href="/wallet">Wallet</Link>
-            <Link href="/leaderboard">Leaderboard</Link>
-          </nav>
+
+          <Navbar />
 
           {children}
         </WalletProvider>
