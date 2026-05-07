@@ -7,6 +7,8 @@ import Wheel from "./components/Wheel";
 import NumberPicker from "./components/NumberPicker";
 import BetInput from "./components/BetInput";
 import { useWallet } from "@/context/WalletContext";
+import HowToPlay from "@/components/HowToPlay";
+import GameButton from "@/components/Gamebutton";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
@@ -62,7 +64,7 @@ export default function ChocolateWheel() {
   }
 
   return (
-
+    
     <div className="container">
       <h1>🍫 Chocolate Wheel</h1>
 
@@ -73,19 +75,19 @@ export default function ChocolateWheel() {
           <NumberPicker
             selected={selectedNumber}
             onSelect={setSelectedNumber}
-          />
+            />
         </div>
 
         <div className="center-panel">
           <Wheel rotation={rotation} />
 
-          <button
-            className="spin"
+          <GameButton
+            text="SPIN"
             onClick={spin}
-            disabled={selectedNumber === null}
-          >
-            SPIN
-          </button>
+            disabled={
+              selectedNumber === null
+            }
+          />
 
           {result !== null && (
             <p className={result === selectedNumber ? "win" : "lose"}>
@@ -96,6 +98,18 @@ export default function ChocolateWheel() {
           )}
         </div>
 <div className="right-panel">
+
+          <HowToPlay
+          title="How  To Play"
+          steps={[
+            "Choose a number",
+            "Place your bet",
+            "Spin the wheel and hope for the best",
+            "Match the numbers to win coins",
+          ]}
+          />
+          <br />
+
   <h3>📜 History</h3>
 
   <div className="history-box">
@@ -111,3 +125,4 @@ export default function ChocolateWheel() {
 </div>
 );
 }
+
