@@ -8,6 +8,7 @@ export default function GamePage() {
 
       <Link href="/chocolateWheel">Chocolate Wheel</Link>
       <Link href="/reactionRush">Reaction Rush</Link>
+      <Link href="/darts">Darts</Link>
     </main>
   );
 }
