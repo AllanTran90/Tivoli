@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import confetti from "canvas-confetti";
 import "./style.css";
 import Wheel from "./components/Wheel";
 import NumberPicker from "./components/NumberPicker";
@@ -9,6 +8,7 @@ import BetInput from "./components/BetInput";
 import { useWallet } from "@/context/WalletContext";
 import HowToPlay from "@/components/HowToPlay";
 import GameButton from "@/components/Gamebutton";
+import triggerWinConfetti from "@/lib/confetti";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
@@ -51,12 +51,8 @@ export default function ChocolateWheel() {
       ]);
 
       if (random === selectedNumber) {
-        setBalance((prev) => prev + bet * 2);
-
-        confetti({
-          particleCount: 150,
-          spread: 120,
-        });
+          triggerWinConfetti();
+        
       } else {
         setBalance((prev) => prev - bet);
       }
@@ -87,6 +83,7 @@ export default function ChocolateWheel() {
             disabled={
               selectedNumber === null
             }
+            className="spin"
           />
 
           {result !== null && (

@@ -48,3 +48,18 @@ a {
   }
 }
 
+.spin {
+  padding: 18px 40px;
+  font-size: 26px;
+  background: linear-gradient(45deg, gold, orange);
+  color: black;
+  border-radius: 10px;
+  margin-top: 25px;
+  font-weight: bold;
+
+  box-shadow: 0 0 20px gold;
+}
+
+.spin:hover {
+  transform: scale(1.1);
+}
