@@ -40,6 +40,7 @@ export default function DartsPage() {
       style={{
         minHeight: "100vh",
         background: "#5232a3ff",
+        color: "white",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
