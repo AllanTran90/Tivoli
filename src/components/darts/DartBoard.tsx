@@ -26,7 +26,7 @@ export default function DartBoard({ onScore }: Props) {
 
     ctx.beginPath();
 
-    ctx.arc(CENTER, CENTER, 290, 0, Math.PI * 2);
+    ctx.arc(CENTER, CENTER, 310, 0, Math.PI * 2);
 
     ctx.fillStyle = "black";
 
@@ -39,7 +39,7 @@ export default function DartBoard({ onScore }: Props) {
 
       const endAngle = ((index + 1) * 18 - 90) * (Math.PI / 180);
 
-      const innerRadius = 70;
+      const innerRadius = 25;
 
       ctx.beginPath();
 
@@ -73,10 +73,10 @@ export default function DartBoard({ onScore }: Props) {
       ctx.beginPath();
 
       // outer edge
-      ctx.arc(CENTER, CENTER, 190, startAngle, endAngle);
+      ctx.arc(CENTER, CENTER, 170, startAngle, endAngle);
 
       // inner edge tillbaka
-      ctx.arc(CENTER, CENTER, 170, endAngle, startAngle, true);
+      ctx.arc(CENTER, CENTER, 150, endAngle, startAngle, true);
 
       ctx.closePath();
 
@@ -87,15 +87,41 @@ export default function DartBoard({ onScore }: Props) {
 
     // ===== DOUBLE RING =====
 
+    sectors.forEach((_, index) => {
+      const startAngle = (index * 18 - 90) * (Math.PI / 180);
+
+      const endAngle = ((index + 1) * 18 - 90) * (Math.PI / 180);
+
+      ctx.beginPath();
+
+      ctx.arc(CENTER, CENTER, 240, startAngle, endAngle);
+
+      ctx.strokeStyle = index % 2 === 0 ? "red" : "green";
+
+      ctx.lineWidth = 18;
+
+      ctx.stroke();
+    });
+
+    // ===== OUTER BULL =====
+
     ctx.beginPath();
 
-    ctx.arc(CENTER, CENTER, 270, 0, Math.PI * 2);
+    ctx.arc(CENTER, CENTER, 28, 0, Math.PI * 2);
 
-    ctx.strokeStyle = "red";
+    ctx.fillStyle = "green";
 
-    ctx.lineWidth = 18;
+    ctx.fill();
 
-    ctx.stroke();
+    // ===== BULLSEYE =====
+
+    ctx.beginPath();
+
+    ctx.arc(CENTER, CENTER, 12, 0, Math.PI * 2);
+
+    ctx.fillStyle = "red";
+
+    ctx.fill();
 
     // ===== SECTOR LINES =====
 
