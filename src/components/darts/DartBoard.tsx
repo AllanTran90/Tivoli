@@ -26,8 +26,6 @@ export default function DartBoard({ onScore, throwsLeft, }: Props) {
     const canvas = canvasRef.current;
 
     if (!canvas) return;
-    
-    if (throwsLeft <= 0) return;
 
     const ctx = canvas.getContext("2d");
 
@@ -63,6 +61,8 @@ export default function DartBoard({ onScore, throwsLeft, }: Props) {
     const canvas = canvasRef.current;
 
     if (!canvas) return;
+
+    if (throwsLeft <= 0) return;
 
     // get hitpoint
     const hit = getHitPosition(event, canvas);
