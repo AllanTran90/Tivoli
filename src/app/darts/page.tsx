@@ -50,7 +50,10 @@ export default function DartsPage() {
         padding: "40px",
       }}
     >
-      <DartBoard onScore={handleScore} />
+      <DartBoard 
+        onScore={handleScore}
+        throwsLeft={throwsLeft}
+        />
 
       <div
         style={{

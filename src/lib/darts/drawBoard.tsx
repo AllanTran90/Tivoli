@@ -1,13 +1,8 @@
 import { CENTER, OUTER_BOARD_RADIUS } from "./constants";
-
 import { drawWedges } from "./drawWedges";
-
 import { drawTripleRing, drawDoubleRing } from "./drawRings";
-
 import { drawBullseye } from "./drawBullseye";
-
 import { drawSectorLines } from "./drawSectorLines";
-
 import { drawNumbers } from "./drawNumbers";
 
 export function drawBoard(ctx: CanvasRenderingContext2D) {
