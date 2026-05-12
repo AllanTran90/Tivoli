@@ -6,15 +6,17 @@ import { useState } from "react";
 import GameButton from "@/components/Gamebutton";
 import HowToPlay from "@/components/HowToPlay";
 import History from "@/components/History";
+import Wind from "@/components/darts/Wind";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
-
   const [throwsLeft, setThrowsLeft] = useState(3);
-
   const [history, setHistory] = useState<string[]>([]);
+  const winds = ["Left", "Right", "Up", "Down",];
 
-  const [wind, setWind] = useState("Left");
+const [wind, setWind] =
+  useState("Left");
+
 
   function handleScore(points: number) {
     // stoppa fler kast
@@ -28,6 +30,7 @@ export default function DartsPage() {
 
     // minska kast
     setThrowsLeft((prev) => prev - 1);
+    
   }
 
   // RESET ROUND
@@ -53,6 +56,7 @@ export default function DartsPage() {
       <DartBoard 
         onScore={handleScore}
         throwsLeft={throwsLeft}
+        wind={"Left"}
         />
 
       <div
@@ -72,10 +76,12 @@ export default function DartsPage() {
             ]}
           />
 
+        <Wind wind={wind}/>
+
         <GamePanel
           score={score}
-          wind={wind}
           throwsLeft={throwsLeft}
+          wind={wind}
         />
 
         <History
