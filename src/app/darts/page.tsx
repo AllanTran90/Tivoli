@@ -7,6 +7,7 @@ import GameButton from "@/components/Gamebutton";
 import HowToPlay from "@/components/HowToPlay";
 import History from "@/components/History";
 import Wind from "@/components/darts/Wind";
+import RewardSystem from "@/components/RewardSystem";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -88,7 +89,21 @@ const [wind, setWind] =
             title="Throw History"
             items={history}
             />
-
+        
+        <RewardSystem
+            value={score}
+            rules={[
+                {
+                    condition: (v) => v >= 150,
+                    reward: "x3 Money",
+                },
+                {
+                    condition: (v) => v >= 100,
+                    reward: "x2 Money",
+                },
+                ]}
+                />
+                    
 
         {throwsLeft <= 0 && (
           <GameButton text="Play Again" onClick={resetRound} />
