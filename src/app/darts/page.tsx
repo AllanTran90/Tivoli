@@ -4,6 +4,7 @@ import DartBoard from "@/components/darts/DartBoard";
 import GamePanel from "@/components/darts/GamePanel";
 import { useState } from "react";
 import GameButton from "@/components/Gamebutton";
+import HowToPlay from "@/components/HowToPlay";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -48,6 +49,7 @@ export default function DartsPage() {
         padding: "40px",
       }}
     >
+
       <DartBoard onScore={handleScore} />
 
       <div
@@ -62,6 +64,16 @@ export default function DartsPage() {
           history={history}
           wind={wind}
           throwsLeft={throwsLeft}
+        />
+
+              <HowToPlay           
+        title="How  To Play"
+        steps={[
+            "Each game costs €5",
+            "You'll get 3 throws",
+            "Bulleyes gives bonus points",
+            "Try to get as many points as possible"
+        ]}
         />
 
         {throwsLeft <= 0 && (
