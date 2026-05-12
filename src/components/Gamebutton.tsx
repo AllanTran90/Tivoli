@@ -2,15 +2,15 @@
 
 type Props ={
     text: string
-    onClick: () => void
     disabled?: boolean
     className?: string
+    onClick: () => void
 };
 
 export default function GameButton ({
    text,
-   onClick,
    disabled,
+   onClick,
    className
 }: 
 Props){

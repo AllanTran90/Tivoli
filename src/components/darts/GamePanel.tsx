@@ -1,9 +1,11 @@
 type Props = {
   score: number;
+  wind: string;
 };
 
 export default function GamePanel({
   score,
+  
 }: Props) {
 
   return (
