@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { handleDarts } from "@/lib/games/darts";
+import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
+import { handleReactionRush } from "@/lib/games/reactionRush";
 
 export async function POST(
   request: Request
@@ -9,78 +12,30 @@ export async function POST(
 
   // DARTS
   if (game === "darts") {
-    const { score } = body;
-
-    if (score >= 150) {
-      return NextResponse.json({
-        reward: "x3",
-        moneyWon: 30,
-      });
-    }
-
-    if (score >= 100) {
-      return NextResponse.json({
-        reward: "x2",
-        moneyWon: 20,
-      });
-    }
-
-    return NextResponse.json({
-      reward: "none",
-      moneyWon: 0,
-    });
+    return NextResponse.json(
+      handleDarts(body.score)
+    );
   }
 
- // CHOCOLATE WHEEL
-if (game === "chocolate-wheel") {
-  const {
-    selectedNumber,
-    resultNumber,
-    multiplier,
-  } = body;
-
-  // WIN
-  if (
-    selectedNumber === resultNumber
-  ) {
-    return NextResponse.json({
-      reward: `x${multiplier}`,
-      moneyWon: multiplier * 2,
-    });
+  // CHOCOLATE WHEEL
+  if (game === "chocolate-wheel") {
+    return NextResponse.json(
+      handleChocolateWheel(
+        body.selectedNumber,
+        body.resultNumber,
+        body.multiplier
+      )
+    );
   }
 
-  // LOSE
-  return NextResponse.json({
-    reward: "No reward",
-    moneyWon: 0,
-  });
-}
-// REACTION RUSH
-if (game === "reaction-rush") {
-  const { reactionTime } = body;
-
-  // PERFECT
-  if (reactionTime < 0.1) {
-    return NextResponse.json({
-      reward: "Perfect! €10",
-      moneyWon: 10,
-    });
+  // REACTION RUSH
+  if (game === "reaction-rush") {
+    return NextResponse.json(
+      handleReactionRush(
+        body.reactionTime
+      )
+    );
   }
-
-  // GOOD
-  if (reactionTime <= 0.2) {
-    return NextResponse.json({
-      reward: "Nice! €5",
-      moneyWon: 5,
-    });
-  }
-
-  // LOSE
-  return NextResponse.json({
-    reward: "Nice try, try again",
-    moneyWon: 0,
-  });
-}
 
   return NextResponse.json(
     {
