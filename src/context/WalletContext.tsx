@@ -13,21 +13,20 @@ const WalletContext = createContext<WalletContextType | null>(null);
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [balance, setBalance] = useState(150);
 
-    useEffect(() => {
+  useEffect(() => {
     async function fetchWallet() {
-      const { data, error } =
-        await supabase
-          .from("wallet")
-          .select("*")
-          .eq("id", 1)
-          .single();
+      const { data, error } = await supabase
+        .from("wallet")
+        .select("*")
+        .eq("id", 1)
+        .single();
 
       if (data) {
         setBalance(data.balance);
       }
 
       if (error) {
-        console.error(error);
+        console.log(error.message);
       }
     }
 
@@ -43,7 +42,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
 export function useWallet() {
   const context = useContext(WalletContext);
-  
 
   if (!context) {
     throw new Error("useWallet must be used inside WalletProvider");
