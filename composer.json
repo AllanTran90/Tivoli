@@ -1,0 +1,15 @@
+{
+    "name": "blogalex/tivoli",
+    "autoload": {
+        "psr-4": {
+            "Blogalex\\Tivoli\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "alebri0616",
+            "email": "alebri0616@skola.goteborg.se"
+        }
+    ],
+    "require": {}
+}
