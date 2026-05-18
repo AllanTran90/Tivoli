@@ -93,6 +93,16 @@ function stopGame() {
         onClick={stopGame}
         />
 
+        <GameButton
+        text="Reset"
+        onClick={() => {
+          setTime(0);
+          setCurrentTime(0);
+          setStartTime(null);
+          setIsPlaying(false);
+        }}
+        />
+
         {time && (
           <div>
             <p>Your Time: {time.toFixed(2)}</p>
