@@ -13,9 +13,14 @@ const WalletContext = createContext<WalletContextType | null>(null);
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [balance, setBalance] = useState(150);
 
+  
   useEffect(() => {
+      if (!supabase) return;
+
+      const client = supabase;
+
     async function fetchWallet() {
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from("wallet")
         .select("*")
         .eq("id", 1)
