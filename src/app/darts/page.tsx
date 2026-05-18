@@ -16,7 +16,15 @@ export default function DartsPage() {
   const winds = ["Left", "Right", "Up", "Down",];
 
 const [wind, setWind] =
-  useState("Left");
+    useState("");
+  function getRandomWind() {
+  const random =
+    Math.floor(
+      Math.random() * winds.length
+    );
+
+  return winds[random];
+}
 
 
   function handleScore(points: number) {
@@ -31,7 +39,8 @@ const [wind, setWind] =
 
     // minska kast
     setThrowsLeft((prev) => prev - 1);
-    
+
+    setWind(getRandomWind());
   }
 
   // RESET ROUND
@@ -57,7 +66,7 @@ const [wind, setWind] =
       <DartBoard 
         onScore={handleScore}
         throwsLeft={throwsLeft}
-        wind={"Left"}
+        wind={wind}
         />
 
       <div
@@ -77,7 +86,7 @@ const [wind, setWind] =
             ]}
           />
 
-        <Wind wind={wind}/>
+       
 
         <GamePanel
           score={score}

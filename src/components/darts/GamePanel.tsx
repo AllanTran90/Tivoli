@@ -14,6 +14,14 @@ export default function GamePanel({
       <h2>Score</h2>
 
       <p>{score}</p>
+
+      <h2>Throws Left</h2>
+
+      <p>{throwsLeft}</p>
+
+      <h2>Wind</h2>
+
+      <p>{wind}</p>
     </div>
   );
 }

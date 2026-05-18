@@ -2,37 +2,37 @@ export const BOARD_SIZE = 600;
 
 export const CENTER = BOARD_SIZE / 2;
 
-// ===== BULL =====
+//  BULL 
 
 export const BULLSEYE_RADIUS = 10;
 
 export const OUTER_BULL_RADIUS = 22;
 
-// ===== INNER SINGLE =====
+// INNER SINGLE 
 
 export const INNER_SINGLE_RADIUS = 22;
 
-// ===== TRIPLE RING =====
+//  TRIPLE RING 
 
 export const TRIPLE_RING_INNER_RADIUS = 150;
 
 export const TRIPLE_RING_OUTER_RADIUS = 165;
 
-// ===== OUTER SINGLE =====
+//  OUTER SINGLE 
 
 export const OUTER_SINGLE_RADIUS = 230;
 
-// ===== DOUBLE RING =====
+//  DOUBLE RING 
 
 export const DOUBLE_RING_INNER_RADIUS = 230;
 
 export const DOUBLE_RING_OUTER_RADIUS = 250;
 
-// ===== BOARD =====
+//  BOARD 
 
 export const OUTER_BOARD_RADIUS = 300;
 
-// ===== SECTORS =====
+// SECTORS 
 
 export const sectors = [
   5, 20, 1, 18, 4, 13,
