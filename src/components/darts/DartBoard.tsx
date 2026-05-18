@@ -11,6 +11,7 @@ type Props = {
   onScore: (points: number) => void;
   throwsLeft: number;
   wind: string;
+  clearBoard: boolean;
 };
 
 type Hit = {
@@ -18,19 +19,17 @@ type Hit = {
   y: number;
 };
 
-export default function DartBoard({
-  onScore,
-  throwsLeft,
-  wind,
-}: Props) {
+export default function DartBoard({ onScore, throwsLeft, wind, clearBoard, }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const [flyingDart, setFlyingDart] =
-    useState<Hit | null>(null);
 
   const [hits, setHits] = useState<Hit[]>([]);
 
   useEffect(() => {
+
+      setHits([]);
+}, [clearBoard]);
+
+    useEffect(() => {
     const canvas = canvasRef.current;
 
     if (!canvas) return;
@@ -40,55 +39,24 @@ export default function DartBoard({
     if (!ctx) return;
 
     // clean canvas
-    ctx.clearRect(
-      0,
-      0,
-      BOARD_SIZE,
-      BOARD_SIZE
-    );
+    ctx.clearRect(0, 0, BOARD_SIZE, BOARD_SIZE);
 
     // draw dartboard
     drawBoard(ctx);
-
-    // draw flying dart
-    if (flyingDart) {
-      ctx.beginPath();
-
-      ctx.moveTo(0, BOARD_SIZE / 2);
-
-      ctx.lineTo(
-        flyingDart.x,
-        flyingDart.y
-      );
-
-      ctx.strokeStyle = "yellow";
-
-      ctx.lineWidth = 4;
-
-      ctx.stroke();
-    }
 
     // draw hitpoints
     hits.forEach((hit) => {
       ctx.beginPath();
 
-      ctx.arc(
-        hit.x,
-        hit.y,
-        6,
-        0,
-        Math.PI * 2
-      );
+      ctx.arc(hit.x, hit.y, 6, 0, Math.PI * 2);
 
       ctx.fillStyle = "yellow";
 
       ctx.fill();
     });
-  }, [hits, flyingDart]);
+  }, [hits]);
 
-  function handleClick(
-    event: React.MouseEvent<HTMLCanvasElement>
-  ) {
+  function handleClick(event: React.MouseEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current;
 
     if (!canvas) return;
@@ -97,14 +65,10 @@ export default function DartBoard({
     if (throwsLeft <= 0) return;
 
     // get hitpoint
-    const hit = getHitPosition(
-      event,
-      canvas
-    );
+    const hit = getHitPosition(event, canvas);
 
     // random wind strength
-    const windStrength =
-      Math.floor(Math.random() * 20) + 5;
+    const windStrength = Math.floor(Math.random() * 20) + 5;
 
     // apply wind
     if (wind === "Left") {
@@ -123,22 +87,11 @@ export default function DartBoard({
       hit.y += windStrength;
     }
 
-    // show flying dart
-    setFlyingDart(hit);
-
-    // save dart after animation
-    setTimeout(() => {
-      setHits((prev) => [
-        ...prev,
-        hit,
-      ]);
-
-      setFlyingDart(null);
-    }, 300);
+    // save hit
+    setHits((prev) => [...prev, hit]);
 
     // calculate score
-    const score =
-      calculateScore(hit);
+    const score = calculateScore(hit);
 
     // send score to parent
     onScore(score);
