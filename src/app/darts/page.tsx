@@ -8,6 +8,7 @@ import HowToPlay from "@/components/HowToPlay";
 import History from "@/components/History";
 import RewardSystem from "@/components/RewardSystem";
 import confetti from "canvas-confetti";
+import { useWallet } from "@/context/WalletContext";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -20,7 +21,9 @@ export default function DartsPage() {
 
   const winds = ["Left", "Right", "Up", "Down"];
 
-  const [wind, setWind] = useState("");
+  const [wind, setWind] = useState("Left");
+
+  const { balance } = useWallet();
 
   function getRandomWind() {
     const random = Math.floor(Math.random() * winds.length);
@@ -29,19 +32,19 @@ export default function DartsPage() {
   }
 
   function handleScore(points: number) {
-    // stoppa fler kast
+    // the throwings
     if (throwsLeft <= 0) return;
 
-    // uppdatera score
+    // updates score
     setScore((prev) => prev + points);
 
-    // uppdatera history
+    // updates history
     setHistory((prev) => [...prev, `Throw ${prev.length + 1} → ${points}`]);
 
-    // minska kast
+    // substracts throws
     setThrowsLeft((prev) => prev - 1);
 
-    // ny vind
+    // new wind
     setWind(getRandomWind());
 
     if (score + points >= 150) {
@@ -59,6 +62,8 @@ export default function DartsPage() {
     setHistory([]);
 
     setThrowsLeft(3);
+
+    setWind(getRandomWind);
 
     setClearBoard(true);
 
@@ -103,6 +108,11 @@ export default function DartsPage() {
             "Try to get as many points as possible",
           ]}
         />
+
+        <div>
+          <h2>Wallet</h2>
+          <p>€ {balance}</p>
+        </div>
 
         <GamePanel score={score} throwsLeft={throwsLeft} wind={wind} />
 

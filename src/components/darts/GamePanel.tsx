@@ -4,11 +4,7 @@ type Props = {
   throwsLeft: number;
 };
 
-export default function GamePanel({ 
-    score, 
-    wind, 
-    throwsLeft }: 
-    Props) {
+export default function GamePanel({ score, wind, throwsLeft }: Props) {
   return (
     <div>
       <h2>Score</h2>
@@ -19,9 +15,10 @@ export default function GamePanel({
 
       <p>{throwsLeft}</p>
 
-      <h2>Wind</h2>
+      <h2>Next Wind</h2>
 
       <p>{wind}</p>
+
     </div>
   );
 }
