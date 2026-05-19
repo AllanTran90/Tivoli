@@ -4,6 +4,9 @@ export const CENTRALBANK_API =
 export const CENTRALBANK_API_KEY =
   process.env.CENTRALBANK_API_KEY;
 
+export const REACTION_RUSH_API =
+  process.env.REACTION_RUSH_API_KEY;
+
 export async function createTransaction(
   identityToken: string,
   amount: number
