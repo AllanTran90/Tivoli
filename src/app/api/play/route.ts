@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { handleDarts } from "@/lib/games/darts";
 import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
 import { handleReactionRush } from "@/lib/games/reactionRush";
+import { createTransaction } from "@/lib/centralBanken";
 
 export async function POST(
   request: Request
@@ -9,6 +10,12 @@ export async function POST(
   const body = await request.json();
 
   const { game } = body;
+
+  const transaction =
+  await createTransaction(
+    body.identityToken,
+    body.amount
+  );
 
   // DARTS
   if (game === "darts") {
