@@ -42,7 +42,7 @@ export default function ReactionRushPage() {
     setIsPlaying(true);
   }
 
-function stopGame() {
+async function stopGame() {
   if (!startTime) return;
 
   const roundedTime = currentTime.toFixed(2);
@@ -58,14 +58,14 @@ setHistory((prev) => [
 ]);
 
   if (roundedTime === "10.00") {
-    setBalance((prev) => prev + bet * 10);
+    await setBalance(balance + bet * 10);
 
     confetti({
       particleCount: 150,
       spread: 120,
     });
   } else {
-    setBalance((prev) => prev - bet);
+    await setBalance(balance - bet);
   }
 }
   return (

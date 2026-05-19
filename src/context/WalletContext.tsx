@@ -5,41 +5,56 @@ import { supabase } from "@/lib/supabase";
 
 type WalletContextType = {
   balance: number;
-  setBalance: React.Dispatch<React.SetStateAction<number>>;
+  setBalance: ( value:number) => Promise<void>;
 };
 
 const WalletContext = createContext<WalletContextType | null>(null);
 
-export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [balance, setBalance] = useState(150);
+export function WalletProvider({ children }: { children: React.ReactNode; }) {
+  const [balance, setBalanceState] = useState(150);
 
   
-  useEffect(() => {
+  useEffect (() => {
       if (!supabase) return;
 
       const client = supabase;
 
-    async function fetchWallet() {
-      const { data, error } = await client
-        .from("wallet")
-        .select("*")
-        .eq("id", 1)
-        .single();
+  async function fetchWallet() {
+  const { data, error } = await client
+    .from("wallet")
+    .select("*")
+    .eq("id", 1)
+    .single();
 
-      if (data) {
-        setBalance(data.balance);
-      }
+  if (data) {
+    setBalanceState(data.balance);
+  }
 
-      if (error) {
-        console.log(error.message);
-      }
-    }
+  if (error) {
+    console.log(error.message);
+  }
+}
 
     fetchWallet();
   }, []);
 
+async function setBalance(value: number) {
+    if (!supabase) return;
+    setBalanceState(value);
+
+  const { error } = await supabase
+    .from("wallet")
+    .update({ balance: value })
+    .eq("id", 1);
+
+  if (error) {
+    console.log(error.message);
+  }
+}
+
   return (
-    <WalletContext.Provider value={{ balance, setBalance }}>
+    <WalletContext.Provider 
+    value={{ balance, setBalance }}>
       {children}
     </WalletContext.Provider>
   );

@@ -13,7 +13,7 @@ import triggerWinConfetti from "@/lib/confetti";
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
-  const {balance, setBalance} = useWallet();
+  const { balance, setBalance } = useWallet();
   const [bet, setBet] = useState(5);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
@@ -42,7 +42,7 @@ export default function ChocolateWheel() {
 
     setRotation(newRotation);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       setResult(random);
 
       setHistory((prev) => [
@@ -51,16 +51,14 @@ export default function ChocolateWheel() {
       ]);
 
       if (random === selectedNumber) {
-          triggerWinConfetti();
-        
+        triggerWinConfetti();
       } else {
-        setBalance((prev) => prev - bet);
+        await setBalance(balance - bet);
       }
     }, 1200);
   }
 
   return (
-    
     <div className="container">
       <h1>🍫 Chocolate Wheel</h1>
 
@@ -71,7 +69,7 @@ export default function ChocolateWheel() {
           <NumberPicker
             selected={selectedNumber}
             onSelect={setSelectedNumber}
-            />
+          />
         </div>
 
         <div className="center-panel">
@@ -80,9 +78,7 @@ export default function ChocolateWheel() {
           <GameButton
             text="SPIN"
             onClick={spin}
-            disabled={
-              selectedNumber === null
-            }
+            disabled={selectedNumber === null}
             className="spin"
           />
 
@@ -94,32 +90,29 @@ export default function ChocolateWheel() {
             </p>
           )}
         </div>
-<div className="right-panel">
-
+        <div className="right-panel">
           <HowToPlay
-          title="How  To Play"
-          steps={[
-            "Choose a number",
-            "Place your bet",
-            "Spin the wheel and hope for the best",
-            "Match the numbers to win coins",
-          ]}
+            title="How  To Play"
+            steps={[
+              "Choose a number",
+              "Place your bet",
+              "Spin the wheel and hope for the best",
+              "Match the numbers to win coins",
+            ]}
           />
           <br />
 
-  <h3>📜 History</h3>
+          <h3>📜 History</h3>
 
-  <div className="history-box">
-    {history.length === 0 && <p>No games yet</p>}
+          <div className="history-box">
+            {history.length === 0 && <p>No games yet</p>}
 
-    {history.map((entry, i) => (
-        <p key={i}>{entry}</p>
-    ))}
+            {history.map((entry, i) => (
+              <p key={i}>{entry}</p>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
-
-  </div>
-</div>
-);
+  );
 }
-
