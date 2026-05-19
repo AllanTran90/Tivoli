@@ -7,6 +7,7 @@ import css from "style.css";
 import { useWallet } from "@/context/WalletContext";
 import BetInput from "../chocolateWheel/components/BetInput";
 import GameButton from "@/components/Gamebutton";
+import History from "@/components/History";
 
 export default function ReactionRushPage() {
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -15,6 +16,7 @@ export default function ReactionRushPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const {balance, setBalance} = useWallet();
   const [bet, setBet]= useState(5);
+  const [history, setHistory] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -47,6 +49,13 @@ function stopGame() {
 
   setTime(currentTime);
   setIsPlaying(false);
+  const difference =
+  Math.abs(10 - currentTime).toFixed(2);
+
+setHistory((prev) => [
+  `⏱️ ${roundedTime}s | Diff: ${difference}s`,
+  ...prev,
+]);
 
   if (roundedTime === "10.00") {
     setBalance((prev) => prev + bet * 10);
@@ -111,6 +120,7 @@ function stopGame() {
               Difference:
               {Math.abs(10 - time).toFixed(2)}
             </p>
+            <History items={history} />
           </div>
         )}
       </div>
