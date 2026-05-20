@@ -14,7 +14,7 @@ export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
   const { balance, setBalance } = useWallet();
-  const [bet, setBet] = useState(5);
+  const [bet, setBet] = useState(2);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
 
@@ -52,8 +52,12 @@ export default function ChocolateWheel() {
 
       if (random === selectedNumber) {
         triggerWinConfetti();
+          setBalance(
+          balance + bet * 2
+        );
       } else {
-        await setBalance(balance - bet);
+        
+        setBalance(balance - bet);
       }
     }, 1200);
   }
@@ -94,6 +98,8 @@ export default function ChocolateWheel() {
           <HowToPlay
             title="How  To Play"
             steps={[
+              "It costs 2€ to play",
+              "Each spin costs your bet amount",
               "Choose a number",
               "Place your bet",
               "Spin the wheel and hope for the best",
