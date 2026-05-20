@@ -9,6 +9,7 @@ import { useWallet } from "@/context/WalletContext";
 import HowToPlay from "@/components/HowToPlay";
 import GameButton from "@/components/Gamebutton";
 import triggerWinConfetti from "@/lib/confetti";
+import { playChocolateWheelRound } from "@/lib/chocolateWheel/playChocolateWheelRound";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
@@ -50,14 +51,22 @@ export default function ChocolateWheel() {
         ...prev,
       ]);
 
-      if (random === selectedNumber) {
-        triggerWinConfetti();
-          setBalance(
-          balance + bet * 2
-        );
-      } else {
-        
-        setBalance(balance - bet);
+      try {
+        const data = await playChocolateWheelRound(selectedNumber, random, bet);
+
+        console.log(data);
+
+        if (data.gameResult.moneyWon) {
+          triggerWinConfetti();
+
+          setBalance(balance + data.gameResult.moneyWon);
+
+          setHistory((prev) => [`WON €${data.gameResult.moneyWon}`, ...prev]);
+        } else {
+          setBalance(balance - bet);
+        }
+      } catch (error) {
+        console.error(error);
       }
     }, 1200);
   }
