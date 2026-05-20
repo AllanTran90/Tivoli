@@ -10,8 +10,8 @@ import RewardSystem from "@/components/RewardSystem";
 import confetti from "canvas-confetti";
 import { useWallet } from "@/context/WalletContext";
 import { playDartsRound } from "@/lib/darts/playDartsRound";
-
-const winds = ["Left", "Right", "Up", "Down"];
+import { DARTS_COST, WINDS } from "@/lib/darts/constants";
+import { resetDartsRound } from "@/lib/darts/resetDartsRound";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -27,9 +27,9 @@ export default function DartsPage() {
   const { balance, setBalance } = useWallet();
 
   function getRandomWind() {
-    const random = Math.floor(Math.random() * winds.length);
+    const random = Math.floor(Math.random() * WINDS.length);
 
-    return winds[random];
+    return WINDS[random];
   }
 
   async function handleScore(points: number) {
@@ -89,23 +89,21 @@ export default function DartsPage() {
   }
 
   // RESET ROUND
-  function resetRound() {
-    setBalance(balance - 3);
+function resetRound() {
 
-    setScore(0);
+  setBalance(
+    balance - DARTS_COST
+  );
 
-    setHistory([]);
-
-    setThrowsLeft(3);
-
-    setWind(getRandomWind());
-
-    setClearBoard(true);
-
-    setTimeout(() => {
-      setClearBoard(false);
-    }, 0);
-  }
+  resetDartsRound(
+    setScore,
+    setHistory,
+    setThrowsLeft,
+    setWind,
+    setClearBoard,
+    getRandomWind
+  );
+}
 
   return (
     <main
