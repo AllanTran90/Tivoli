@@ -12,6 +12,9 @@ type Props = {
   throwsLeft: number;
   wind: string;
   clearBoard: boolean;
+  aimX: number;
+  aimY: number;
+  keyboardThrow: boolean;
 };
 
 type Hit = {
@@ -19,58 +22,89 @@ type Hit = {
   y: number;
 };
 
-export default function DartBoard({ onScore, throwsLeft, wind, clearBoard, }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export default function DartBoard({
+  onScore,
+  throwsLeft,
+  wind,
+  clearBoard,
+  aimX,
+  aimY,
+  keyboardThrow,
+}: Props) {
 
-  const [hits, setHits] = useState<Hit[]>([]);
+  const canvasRef =
+    useRef<HTMLCanvasElement>(null);
+
+  const [hits, setHits] =
+    useState<Hit[]>([]);
+
+  useEffect(() => {
+    setHits([]);
+  }, [clearBoard]);
 
   useEffect(() => {
 
-      setHits([]);
-}, [clearBoard]);
-
-    useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas =
+      canvasRef.current;
 
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx =
+      canvas.getContext("2d");
 
     if (!ctx) return;
 
     // clean canvas
-    ctx.clearRect(0, 0, BOARD_SIZE, BOARD_SIZE);
+    ctx.clearRect(
+      0,
+      0,
+      BOARD_SIZE,
+      BOARD_SIZE
+    );
 
     // draw dartboard
     drawBoard(ctx);
 
     // draw hitpoints
     hits.forEach((hit) => {
+
       ctx.beginPath();
 
-      ctx.arc(hit.x, hit.y, 6, 0, Math.PI * 2);
+      ctx.arc(
+        hit.x,
+        hit.y,
+        6,
+        0,
+        Math.PI * 2
+      );
 
       ctx.fillStyle = "yellow";
 
       ctx.fill();
     });
-  }, [hits]);
 
-  function handleClick(event: React.MouseEvent<HTMLCanvasElement>) {
-    const canvas = canvasRef.current;
+    // draw aim
+    ctx.beginPath();
 
-    if (!canvas) return;
+    ctx.arc(
+      aimX,
+      aimY,
+      8,
+      0,
+      Math.PI * 2
+    );
 
-    // stop after 3 throws
-    if (throwsLeft <= 0) return;
+    ctx.fillStyle = "lime";
 
-    // get hitpoint
-    const hit = getHitPosition(event, canvas);
+    ctx.fill();
 
-    // random wind strength
-    const windStrength = Math.floor(Math.random() * 20) + 5;
+  }, [hits, aimX, aimY]);
 
-    // apply wind
+  function throwDart(hit: Hit) {
+
+    const windStrength =
+      Math.floor(Math.random() * 20) + 5;
+
     if (wind === "Left") {
       hit.x -= windStrength;
     }
@@ -87,14 +121,50 @@ export default function DartBoard({ onScore, throwsLeft, wind, clearBoard, }: Pr
       hit.y += windStrength;
     }
 
-    // save hit
-    setHits((prev) => [...prev, hit]);
+    setHits((prev) => [
+      ...prev,
+      hit,
+    ]);
 
-    // calculate score
-    const score = calculateScore(hit);
+    const score =
+      calculateScore(hit);
 
-    // send score to parent
     onScore(score);
+  }
+
+  useEffect(() => {
+
+    if (!keyboardThrow) return;
+
+    const hit = {
+      x: aimX,
+      y: aimY,
+    };
+
+    throwDart(hit);
+
+  }, [keyboardThrow]);
+
+  function handleClick(
+    event: React.MouseEvent<HTMLCanvasElement>
+  ) {
+
+    const canvas =
+      canvasRef.current;
+
+    if (!canvas) return;
+
+    // stop after 3 throws
+    if (throwsLeft <= 0) return;
+
+    // get hitpoint
+    const hit =
+      getHitPosition(
+        event,
+        canvas
+      );
+
+    throwDart(hit);
   }
 
   return (

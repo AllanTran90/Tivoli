@@ -2,7 +2,7 @@
 
 import DartBoard from "@/components/darts/DartBoard";
 import GamePanel from "@/components/darts/GamePanel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GameButton from "@/components/Gamebutton";
 import HowToPlay from "@/components/HowToPlay";
 import History from "@/components/History";
@@ -12,24 +12,41 @@ import { useWallet } from "@/context/WalletContext";
 import { playDartsRound } from "@/lib/darts/playDartsRound";
 import { DARTS_COST, WINDS } from "@/lib/darts/constants";
 import { resetDartsRound } from "@/lib/darts/resetDartsRound";
+import ThrowButton from "@/components/darts/throwButton";
+import { useKeyboardAim } from "@/lib/darts/useKeyboardAim";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
-
   const [throwsLeft, setThrowsLeft] = useState(3);
-
   const [history, setHistory] = useState<string[]>([]);
-
   const [clearBoard, setClearBoard] = useState(false);
-
   const [wind, setWind] = useState("Left");
-
+  const [aimX, setAimX] = useState(300);
+  const [aimY, setAimY] = useState(300);
   const { balance, setBalance } = useWallet();
+  const [keyboardThrow, setKeyboardThrow] = useState(false);
+
+  useKeyboardAim({
+    setAimX,
+    setAimY,
+    onThrow: throwRandomDart,
+  });
 
   function getRandomWind() {
     const random = Math.floor(Math.random() * WINDS.length);
 
     return WINDS[random];
+  }
+
+  // keyboard throwing
+  function throwRandomDart() {
+    if (throwsLeft <= 0) return;
+
+    setKeyboardThrow(true);
+
+    setTimeout(() => {
+      setKeyboardThrow(false);
+    }, 100);
   }
 
   async function handleScore(points: number) {
@@ -40,10 +57,7 @@ export default function DartsPage() {
     setScore((prev) => prev + points);
 
     // updates history
-    setHistory((prev) => [
-      ...prev,
-      `Throw ${prev.length + 1} → ${points}`,
-    ]);
+    setHistory((prev) => [...prev, `Throw ${prev.length + 1} → ${points}`]);
 
     // substracts throws
     setThrowsLeft((prev) => prev - 1);
@@ -54,23 +68,14 @@ export default function DartsPage() {
 
     if (newThrowsLeft <= 0) {
       try {
-        const data =
-          await playDartsRound(
-            finalScore
-          );
+        const data = await playDartsRound(finalScore);
 
         console.log(data);
 
         if (data.gameResult.moneyWon) {
-          setBalance(
-            balance +
-              data.gameResult.moneyWon
-          );
+          setBalance(balance + data.gameResult.moneyWon);
 
-          setHistory((prev) => [
-            ...prev,
-            `Won €${data.gameResult.moneyWon}`,
-          ]);
+          setHistory((prev) => [...prev, `Won €${data.gameResult.moneyWon}`]);
         }
       } catch (error) {
         console.error(error);
@@ -89,21 +94,18 @@ export default function DartsPage() {
   }
 
   // RESET ROUND
-function resetRound() {
+  function resetRound() {
+    setBalance(balance - DARTS_COST);
 
-  setBalance(
-    balance - DARTS_COST
-  );
-
-  resetDartsRound(
-    setScore,
-    setHistory,
-    setThrowsLeft,
-    setWind,
-    setClearBoard,
-    getRandomWind
-  );
-}
+    resetDartsRound(
+      setScore,
+      setHistory,
+      setThrowsLeft,
+      setWind,
+      setClearBoard,
+      getRandomWind,
+    );
+  }
 
   return (
     <main
@@ -123,7 +125,12 @@ function resetRound() {
         throwsLeft={throwsLeft}
         wind={wind}
         clearBoard={clearBoard}
+        aimX={aimX}
+        aimY={aimY}
+        keyboardThrow={keyboardThrow}
       />
+
+      <ThrowButton onThrow={throwRandomDart} />
 
       <div
         style={{
@@ -141,6 +148,7 @@ function resetRound() {
             "Try to get as many points as possible",
             "The outer ring gives 2x points",
             "The inner ring gives 3x points",
+            "You can use arrow keys to aim and space to throw",
           ]}
         />
 
@@ -149,16 +157,9 @@ function resetRound() {
           <p>€ {balance}</p>
         </div>
 
-        <GamePanel
-          score={score}
-          throwsLeft={throwsLeft}
-          wind={wind}
-        />
+        <GamePanel score={score} throwsLeft={throwsLeft} wind={wind} />
 
-        <History
-          title="Throw History"
-          items={history}
-        />
+        <History title="Throw History" items={history} />
 
         <RewardSystem
           value={score}
@@ -175,10 +176,7 @@ function resetRound() {
         />
 
         {throwsLeft <= 0 && (
-          <GameButton
-            text="Play Again"
-            onClick={resetRound}
-          />
+          <GameButton text="Play Again" onClick={resetRound} />
         )}
       </div>
     </main>
