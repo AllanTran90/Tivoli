@@ -148,7 +148,7 @@ export default function DartsPage() {
             "Try to get as many points as possible",
             "The outer ring gives 2x points",
             "The inner ring gives 3x points",
-            "You can use arrow keys to aim and space to throw",
+            "You can use the arrow keys to aim and space to throw",
           ]}
         />
 
