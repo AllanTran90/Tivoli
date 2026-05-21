@@ -41,3 +41,45 @@ export async function createTransaction(
 
   return data;
 }
+
+export async function payoutTransaction(
+  transactionId: string,
+  amount: number
+) {
+  if (!CENTRALBANK_API) {
+    throw new Error("CENTRALBANK_API_URL missing");
+  }
+
+  if (!CENTRALBANK_API_KEY) {
+    throw new Error("CENTRALBANK_API_KEY missing");
+  }
+
+  const response = await fetch(
+    `${CENTRALBANK_API}/transactions/${transactionId}/payout`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+
+      body: JSON.stringify({
+        amount,
+        api_key:
+          CENTRALBANK_API_KEY,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+      "Payout failed"
+    );
+  }
+
+  return data;
+}

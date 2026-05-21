@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { handleDarts } from "@/lib/games/darts";
 import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
 import { handleReactionRush } from "@/lib/games/reactionRush";
-import { createTransaction } from "@/lib/centralBanken";
+import { createTransaction, payoutTransaction } from "@/lib/centralBanken";
 
 export async function POST(request: Request) {
   try {
@@ -22,40 +22,38 @@ export async function POST(request: Request) {
       result = handleChocolateWheel(
         body.selectedNumber,
         body.resultNumber,
-        body.multiplier
+        body.multiplier,
       );
     }
 
     // REACTION RUSH
     else if (game === "reaction-rush") {
-      result = handleReactionRush(
-        body.reactionTime
-      );
-    }
-
-    else {
+      result = handleReactionRush(body.reactionTime);
+    } else {
       return NextResponse.json(
         {
           error: "Unknown game",
         },
         {
           status: 400,
-        }
+        },
       );
     }
 
-    const transaction =
-      await createTransaction(
-        body.identityToken,
-        body.amount
-      );
+    const transaction = await createTransaction(
+      body.identityToken,
+      body.amount,
+    );
+
+    if (result.moneyWon > 0) {
+      await payoutTransaction(transaction.id, result.moneyWon);
+    }
 
     return NextResponse.json({
       success: true,
       result,
       transaction,
     });
-
   } catch (error) {
     console.error(error);
 
@@ -66,7 +64,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
