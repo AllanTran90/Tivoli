@@ -4,52 +4,69 @@ import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
 import { handleReactionRush } from "@/lib/games/reactionRush";
 import { createTransaction } from "@/lib/centralBanken";
 
-export async function POST(
-  request: Request
-) {
-  const body = await request.json();
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
 
-  const { game } = body;
+    const { game } = body;
 
-  const transaction =
-  await createTransaction(
-    body.identityToken,
-    body.amount
-  );
+    let result;
 
-  // DARTS
-  if (game === "darts") {
-    return NextResponse.json(
-      handleDarts(body.score)
-    );
-  }
+    // DARTS
+    if (game === "darts") {
+      result = handleDarts(body.score);
+    }
 
-  // CHOCOLATE WHEEL
-  if (game === "chocolate-wheel") {
-    return NextResponse.json(
-      handleChocolateWheel(
+    // CHOCOLATE WHEEL
+    else if (game === "chocolate-wheel") {
+      result = handleChocolateWheel(
         body.selectedNumber,
         body.resultNumber,
         body.multiplier
-      )
-    );
-  }
-
-  // REACTION RUSH
-  if (game === "reaction-rush") {
-    return NextResponse.json(
-      handleReactionRush(
-        body.reactionTime
-      )
-    );
-  }
-
-  return NextResponse.json(
-    {
-      error: "Unknown game",
-    },
-    {
-      status: 400,
+      );
     }
-  );
+
+    // REACTION RUSH
+    else if (game === "reaction-rush") {
+      result = handleReactionRush(
+        body.reactionTime
+      );
+    }
+
+    else {
+      return NextResponse.json(
+        {
+          error: "Unknown game",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const transaction =
+      await createTransaction(
+        body.identityToken,
+        body.amount
+      );
+
+    return NextResponse.json({
+      success: true,
+      result,
+      transaction,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Something went wrong",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
 }

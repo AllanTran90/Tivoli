@@ -8,16 +8,17 @@ import { useWallet } from "@/context/WalletContext";
 import BetInput from "../chocolateWheel/components/BetInput";
 import GameButton from "@/components/Gamebutton";
 import History from "@/components/History";
+import { playGame } from "@/lib/playGame";
 
 export default function ReactionRushPage() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [time, setTime] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const {balance, setBalance} = useWallet();
-  const [bet, setBet]= useState(5);
+  const { balance, setBalance } = useWallet();
+  const [bet, setBet] = useState(2);
   const [history, setHistory] = useState<string[]>([]);
-
+  const [identityToken, setIdentityToken] = useState<string | null>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -42,32 +43,48 @@ export default function ReactionRushPage() {
     setIsPlaying(true);
   }
 
-async function stopGame() {
-  if (!startTime) return;
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
 
-  const roundedTime = currentTime.toFixed(2);
+    const token = params.get("identity_token");
 
-  setTime(currentTime);
-  setIsPlaying(false);
-  const difference =
-  Math.abs(10 - currentTime).toFixed(2);
+    console.log(token);
 
-setHistory((prev) => [
-  `⏱️ ${roundedTime}s | Diff: ${difference}s`,
-  ...prev,
-]);
+    setIdentityToken(token);
+  }, []);
 
-  if (roundedTime === "10.00") {
-    await setBalance(balance + bet * 10);
+  async function stopGame() {
+    if (!startTime) return;
 
-    confetti({
-      particleCount: 150,
-      spread: 120,
+    const roundedTime = currentTime.toFixed(2);
+    setTime(currentTime);
+    setIsPlaying(false);
+
+    const difference = Math.abs(10 - currentTime).toFixed(2);
+
+    setHistory((prev) => [
+      `⏱️ ${roundedTime}s | Diff: ${difference}s`,
+      ...prev,
+    ]);
+
+    const data = await playGame({
+      game: "reaction-rush",
+      reactionTime: currentTime,
+      amount: bet,
+      identityToken: identityToken || "",
     });
-  } else {
-    await setBalance(balance - bet);
+
+    if (roundedTime === "10.00") {
+      await setBalance(balance + bet * 10);
+
+      confetti({
+        particleCount: 150,
+        spread: 120,
+      });
+    } else {
+      await setBalance(balance - bet);
+    }
   }
-}
   return (
     <main>
       <div className="center-panel">
@@ -86,30 +103,20 @@ setHistory((prev) => [
         <br />
         <h2>{currentTime.toFixed(2)}</h2>
 
-        <BetInput
-            bet={bet}
-            balance={balance}
-            onChange={setBet}
-            />
+        <BetInput bet={bet} balance={balance} onChange={setBet} />
 
-        <GameButton 
-        text= "Play"
-        onClick={startGame}
-        />
+        <GameButton text="Play" onClick={startGame} />
 
-        <GameButton 
-        text= "Stop"
-        onClick={stopGame}
-        />
+        <GameButton text="Stop" onClick={stopGame} />
 
         <GameButton
-        text="Reset"
-        onClick={() => {
-          setTime(0);
-          setCurrentTime(0);
-          setStartTime(null);
-          setIsPlaying(false);
-        }}
+          text="Reset"
+          onClick={() => {
+            setTime(0);
+            setCurrentTime(0);
+            setStartTime(null);
+            setIsPlaying(false);
+          }}
         />
 
         {time && (

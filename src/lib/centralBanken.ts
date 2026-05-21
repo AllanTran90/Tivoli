@@ -1,23 +1,28 @@
-export const CENTRALBANK_API =
+const CENTRALBANK_API =
   process.env.CENTRALBANK_API_URL;
 
-export const CENTRALBANK_API_KEY =
+const CENTRALBANK_API_KEY =
   process.env.CENTRALBANK_API_KEY;
 
 export async function createTransaction(
   identityToken: string,
   amount: number
 ) {
+  if (!CENTRALBANK_API) {
+    throw new Error("CENTRALBANK_API_URL missing");
+  }
+
+  if (!CENTRALBANK_API_KEY) {
+    throw new Error("CENTRALBANK_API_KEY missing");
+  }
+
   const response = await fetch(
     `${CENTRALBANK_API}/transactions`,
     {
       method: "POST",
-
       headers: {
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         identity_token: identityToken,
         amount,
@@ -26,5 +31,13 @@ export async function createTransaction(
     }
   );
 
-  return response.json();
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Transaction failed"
+    );
+  }
+
+  return data;
 }
