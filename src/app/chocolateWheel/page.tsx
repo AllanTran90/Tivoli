@@ -9,12 +9,13 @@ import { useWallet } from "@/context/WalletContext";
 import HowToPlay from "@/components/HowToPlay";
 import GameButton from "@/components/Gamebutton";
 import triggerWinConfetti from "@/lib/confetti";
+import { playChocolateWheelRound } from "@/lib/chocolateWheel/playChocolateWheelRound";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
   const { balance, setBalance } = useWallet();
-  const [bet, setBet] = useState(5);
+  const [bet, setBet] = useState(2);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
 
@@ -50,10 +51,22 @@ export default function ChocolateWheel() {
         ...prev,
       ]);
 
-      if (random === selectedNumber) {
-        triggerWinConfetti();
-      } else {
-        await setBalance(balance - bet);
+      try {
+        const data = await playChocolateWheelRound(selectedNumber, random, bet);
+
+        console.log(data);
+
+        if (data.gameResult.moneyWon) {
+          triggerWinConfetti();
+
+          setBalance(balance + data.gameResult.moneyWon);
+
+          setHistory((prev) => [`WON €${data.gameResult.moneyWon}`, ...prev]);
+        } else {
+          setBalance(balance - bet);
+        }
+      } catch (error) {
+        console.error(error);
       }
     }, 1200);
   }
@@ -94,6 +107,8 @@ export default function ChocolateWheel() {
           <HowToPlay
             title="How  To Play"
             steps={[
+              "It costs 2€ to play",
+              "Each spin costs your bet amount",
               "Choose a number",
               "Place your bet",
               "Spin the wheel and hope for the best",

@@ -22,9 +22,9 @@ export function WalletProvider({ children }: { children: React.ReactNode; }) {
   async function fetchWallet() {
   const { data, error } = await client
     .from("wallet")
-    .select("*")
+    .select("balance")
     .eq("id", 1)
-    .single();
+    .maybeSingle();
 
   if (data) {
     setBalanceState(data.balance);

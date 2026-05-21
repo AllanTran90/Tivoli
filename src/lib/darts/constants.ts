@@ -40,3 +40,12 @@ export const sectors = [
   3, 19, 7, 16, 8,
   11, 14, 9, 12, 
 ];
+
+export const DARTS_COST = 3;
+
+export const WINDS = [
+  "Left",
+  "Right",
+  "Up",
+  "Down",
+];
