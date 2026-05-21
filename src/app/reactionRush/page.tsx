@@ -111,17 +111,17 @@ export default function ReactionRushPage() {
   }
 
   const handleGame =
-  useCallback(() => {
+  useCallback(async() => {
 
     if (isPlaying) {
 
-      stopGame();
+    await stopGame();
 
     } else {
 
       startGame();
     }
-  }, [isPlaying]);
+  }, [isPlaying, currentTime]);
 
   useSpaceKey({
     action: handleGame,
