@@ -10,6 +10,8 @@ export async function POST(
   try {
     const body = await request.json();
 
+    console.log("BODY:", body);
+
     const { game } = body;
 
     //  Payment to centralbanken

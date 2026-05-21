@@ -1,16 +1,18 @@
 "use client";
 
 import confetti from "canvas-confetti";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import HowToPlay from "@/components/HowToPlay";
-import css from "style.css";
+import "./style.css";
 import { useWallet } from "@/context/WalletContext";
 import BetInput from "../chocolateWheel/components/BetInput";
 import GameButton from "@/components/Gamebutton";
 import History from "@/components/History";
 import { playReactionRushRound } from "@/lib/reactionRush/playReactionRushRound";
+import useSpaceKey from "@/hooks/useSpaceKey";
 
 export default function ReactionRushPage() {
+
   const [startTime, setStartTime] =
     useState<number | null>(null);
 
@@ -26,31 +28,10 @@ export default function ReactionRushPage() {
   const { balance, setBalance } =
     useWallet();
 
-  const [bet, setBet] = useState(5);
+  const [bet, setBet] = useState(2);
 
   const [history, setHistory] =
     useState<string[]>([]);
-
-  useEffect(() => {
-
-    let interval: NodeJS.Timeout;
-
-    if (isPlaying && startTime) {
-
-      interval = setInterval(() => {
-
-        const now = Date.now();
-
-        setCurrentTime(
-          (now - startTime) / 1000
-        );
-
-      }, 10);
-    }
-
-    return () => clearInterval(interval);
-
-  }, [isPlaying, startTime]);
 
   function startGame() {
 
@@ -101,7 +82,7 @@ export default function ReactionRushPage() {
         data.gameResult.moneyWon
       ) {
 
-        await setBalance(
+        setBalance(
           balance +
           data.gameResult.moneyWon
         );
@@ -118,7 +99,7 @@ export default function ReactionRushPage() {
 
       } else {
 
-        await setBalance(
+        setBalance(
           balance - bet
         );
       }
@@ -129,11 +110,53 @@ export default function ReactionRushPage() {
     }
   }
 
+  const handleGame =
+  useCallback(() => {
+
+    if (isPlaying) {
+
+      stopGame();
+
+    } else {
+
+      startGame();
+    }
+  }, [isPlaying]);
+
+  useSpaceKey({
+    action: handleGame,
+  });
+
+  useEffect(() => {
+
+    let interval: NodeJS.Timeout;
+
+    if (isPlaying && startTime) {
+
+      interval = setInterval(() => {
+
+        const now = Date.now();
+
+        setCurrentTime(
+          (now - startTime) / 1000
+        );
+
+      }, 10);
+    }
+
+    return () => clearInterval(interval);
+
+  }, [isPlaying, startTime]);
+
   return (
     <main>
       <div className="center-panel">
 
         <h1>⏱️ Reaction Rush</h1>
+
+        <p>
+          Press SPACE to play
+        </p>
 
         <br />
 
@@ -160,13 +183,12 @@ export default function ReactionRushPage() {
         />
 
         <GameButton
-          text="Play"
-          onClick={startGame}
-        />
-
-        <GameButton
-          text="Stop"
-          onClick={stopGame}
+          text={
+            isPlaying
+              ? "Stop"
+              : "Play"
+          }
+          onClick={handleGame}
         />
 
         <GameButton
@@ -183,7 +205,7 @@ export default function ReactionRushPage() {
           }}
         />
 
-        {time && (
+        {time !== null && (
           <div>
 
             <p>
