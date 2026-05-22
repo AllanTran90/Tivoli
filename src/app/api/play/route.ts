@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
+
 import { handleDarts } from "@/lib/games/darts";
 import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
 import { handleReactionRush } from "@/lib/games/reactionRush";
-import { createTransaction } from "@/lib/centralBanken";
+
+import {
+  createTransaction,
+  payoutTransaction,
+} from "@/lib/centralBanken";
 
 export async function POST(
   request: Request
@@ -12,40 +17,20 @@ export async function POST(
 
     const { game } = body;
 
-    //  Payment to centralbanken
-    const transaction =
-      await createTransaction(
-        body.identityToken,
-        body.amount
-      );
+    let result;
 
-    // controll if transaction was successful
-    if (transaction.error) {
-      return NextResponse.json(
-        {
-          error:
-            "Transaction failed",
-          details:
-            transaction.error,
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    let gameResult;
-
-    //  run right game logic based on game type
+    // DARTS
     if (game === "darts") {
-      gameResult =
-        handleDarts(body.score);
+      result = handleDarts(
+        body.score
+      );
     }
 
+    // CHOCOLATE WHEEL
     else if (
       game === "chocolate-wheel"
     ) {
-      gameResult =
+      result =
         handleChocolateWheel(
           body.selectedNumber,
           body.resultNumber,
@@ -53,15 +38,17 @@ export async function POST(
         );
     }
 
+    // REACTION RUSH
     else if (
       game === "reaction-rush"
     ) {
-      gameResult =
+      result =
         handleReactionRush(
           body.reactionTime
         );
     }
 
+    // UNKNOWN GAME
     else {
       return NextResponse.json(
         {
@@ -74,19 +61,42 @@ export async function POST(
       );
     }
 
-    // 3. return BOTH
+    console.log("BODY:", body);
+    console.log("RESULT:", result);
+
+    // Create transaction
+    const transaction =
+      await createTransaction(
+        body.identityToken,
+        body.amount
+      );
+
+    // Payout if user won
+    if (
+      result.moneyWon > 0
+    ) {
+      await payoutTransaction(
+        transaction.transaction_id,
+        result.moneyWon
+      );
+    }
+
+    console.log(
+      "TRANSACTION:",
+      transaction
+    );
+
     return NextResponse.json({
       success: true,
+      result,
       transaction,
-      gameResult,
     });
-
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
       {
+        success: false,
         error:
           "Something went wrong",
       },
