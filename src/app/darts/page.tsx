@@ -9,6 +9,7 @@ import History from "@/components/History";
 import RewardSystem from "@/components/RewardSystem";
 import confetti from "canvas-confetti";
 import { useWallet } from "@/context/WalletContext";
+import styles from ".@/components/darts/Darts.module.css";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);

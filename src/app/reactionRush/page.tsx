@@ -70,8 +70,8 @@ export default function ReactionRushPage() {
     const data = await playGame({
       game: "reaction-rush",
       reactionTime: currentTime,
-      amount: bet,
-      identityToken: identityToken || "",
+      amount: -bet,
+      identityToken: "user",
     });
 
     if (roundedTime === "10.00") {

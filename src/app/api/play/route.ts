@@ -40,14 +40,19 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log("BODY:", body);
+    console.log("RESULT:", result);
+
     const transaction = await createTransaction(
       body.identityToken,
       body.amount,
     );
 
     if (result.moneyWon > 0) {
-      await payoutTransaction(transaction.id, result.moneyWon);
+      await payoutTransaction(transaction.transaction_id, result.moneyWon);
     }
+
+    console.log("TRANSACTION:", transaction);
 
     return NextResponse.json({
       success: true,

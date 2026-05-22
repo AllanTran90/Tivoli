@@ -9,6 +9,8 @@ import { useWallet } from "@/context/WalletContext";
 import HowToPlay from "@/components/HowToPlay";
 import GameButton from "@/components/Gamebutton";
 import triggerWinConfetti from "@/lib/confetti";
+import ChocolateWheelModules from "@/app/chocolateWheel/components/ChocolateWheel.modules.css";
+import stylecss from "@/app/chocolateWheel/style.css";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
@@ -66,6 +68,7 @@ export default function ChocolateWheel() {
         <div className="left-panel">
           <BetInput bet={bet} balance={balance} onChange={setBet} />
 
+        <div className="game-row">
           <NumberPicker
             selected={selectedNumber}
             onSelect={setSelectedNumber}
@@ -74,6 +77,7 @@ export default function ChocolateWheel() {
 
         <div className="center-panel">
           <Wheel rotation={rotation} />
+          </div>
 
           <GameButton
             text="SPIN"
