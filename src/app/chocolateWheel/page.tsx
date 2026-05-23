@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./style.css";
 import Wheel from "./components/Wheel";
 import NumberPicker from "./components/NumberPicker";
@@ -20,6 +20,15 @@ export default function ChocolateWheel() {
   const [bet, setBet] = useState(2);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
+  const [identityToken, setIdentityToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    const token = params.get("identity_token");
+
+    setIdentityToken(token);
+  }, []);
 
   function spin() {
     if (bet > balance || selectedNumber === null) return;
@@ -49,23 +58,32 @@ export default function ChocolateWheel() {
       setResult(random);
 
       setHistory((prev) => [
-        `${random === selectedNumber ? "WIN 🎉" : "LOSS 😢"} | Number: ${random} | Bet: ${bet}`,
+        `${
+          random === selectedNumber ? "WIN 🎉" : "LOSS 😢"
+        } | Number: ${random} | Bet: ${bet}`,
         ...prev,
       ]);
 
       try {
-        const data = await playChocolateWheelRound(selectedNumber, random, bet);
+        const data = await playChocolateWheelRound(
+          selectedNumber,
+          random,
+          bet,
+          identityToken || undefined,
+        );
 
         console.log(data);
 
-        if (data.gameResult.moneyWon) {
+        if (data.success && data.result?.moneyWon > 0) {
           triggerWinConfetti();
 
-          setBalance(balance + data.gameResult.moneyWon);
+          setBalance(balance + data.result.moneyWon);
 
-          setHistory((prev) => [`WON €${data.gameResult.moneyWon}`, ...prev]);
+          setHistory((prev) => [`WON €${data.result.moneyWon}`, ...prev]);
         } else {
           setBalance(balance - bet);
+
+          setHistory((prev) => [`LOST €${bet}`, ...prev]);
         }
       } catch (error) {
         console.error(error);
@@ -81,15 +99,15 @@ export default function ChocolateWheel() {
         <div className="left-panel">
           <BetInput bet={bet} balance={balance} onChange={setBet} />
 
-        <div className="game-row">
-          <NumberPicker
-            selected={selectedNumber}
-            onSelect={setSelectedNumber}
-          />
-        </div>
+          <div className="game-row">
+            <NumberPicker
+              selected={selectedNumber}
+              onSelect={setSelectedNumber}
+            />
+          </div>
 
-        <div className="center-panel">
-          <Wheel rotation={rotation} />
+          <div className="center-panel">
+            <Wheel rotation={rotation} />
           </div>
 
           <GameButton
