@@ -1,9 +1,9 @@
 export async function playChocolateWheelRound(
   selectedNumber: number,
   resultNumber: number,
-  multiplier: number
+  multiplier: number,
+  identityToken?: string
 ) {
-
   const response = await fetch(
     "/api/play",
     {
@@ -23,10 +23,11 @@ export async function playChocolateWheelRound(
 
         multiplier,
 
-        amount: -2,
+        amount: multiplier,
 
         identityToken:
-          "user",
+          identityToken ||
+          "123e4567-e89b-12d3-a456-426614174000",
       }),
     }
   );
