@@ -2,62 +2,36 @@
 
 import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
-
 import HowToPlay from "@/components/HowToPlay";
 import { useWallet } from "@/context/WalletContext";
-
 import BetInput from "../chocolateWheel/components/BetInput";
 import GameButton from "@/components/Gamebutton";
 import History from "@/components/History";
-
 import { playGame } from "@/lib/playGame";
 
 export default function ReactionRushPage() {
-  const [startTime, setStartTime] =
-    useState<number | null>(null);
-
-  const [currentTime, setCurrentTime] =
-    useState(0);
-
-  const [time, setTime] =
-    useState<number | null>(null);
-
-  const [isPlaying, setIsPlaying] =
-    useState(false);
-
-  const { balance, setBalance } =
-    useWallet();
-
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [time, setTime] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const { balance, setBalance } = useWallet();
   const [bet, setBet] = useState(2);
-
-  const [history, setHistory] =
-    useState<string[]>([]);
-
-  const [identityToken, setIdentityToken] =
-    useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+  const [identityToken, setIdentityToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-    const token =
-      params.get("identity_token");
-
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("identity_token");
     setIdentityToken(token);
   }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-
     if (isPlaying && startTime) {
       interval = setInterval(() => {
         const now = Date.now();
 
-        setCurrentTime(
-          (now - startTime) / 1000
-        );
+        setCurrentTime((now - startTime) / 1000);
       }, 10);
     }
 
@@ -66,30 +40,22 @@ export default function ReactionRushPage() {
 
   function startGame() {
     if (bet > balance) return;
-
     setTime(null);
-
     setCurrentTime(0);
-
     setStartTime(Date.now());
-
     setIsPlaying(true);
   }
 
   async function stopGame() {
     if (!startTime) return;
 
-    const roundedTime =
-      currentTime.toFixed(2);
+    const roundedTime = currentTime.toFixed(2);
 
     setTime(currentTime);
 
     setIsPlaying(false);
 
-    const difference =
-      Math.abs(
-        10 - currentTime
-      ).toFixed(2);
+    const difference = Math.abs(10 - currentTime).toFixed(2);
 
     setHistory((prev) => [
       `⏱️ ${roundedTime}s | Diff: ${difference}s`,
@@ -100,33 +66,42 @@ export default function ReactionRushPage() {
       const data = await playGame({
         game: "reaction-rush",
         reactionTime: currentTime,
-        amount: -bet,
-        identityToken:
-          identityToken || "",
+        amount: bet,
+        identityToken: identityToken || "123e4567-e89b-12d3-a456-426614174000",
       });
 
       console.log(data);
 
-      if (data.result.moneyWon) {
-        await setBalance(
-          balance +
-            data.result.moneyWon
-        );
+if (
+  data.success &&
+  data.result?.moneyWon > 0
+) {
+  const winnings =
+    data.result.moneyWon;
 
-        confetti({
-          particleCount: 150,
-          spread: 120,
-        });
+  await setBalance(
+    balance + winnings
+  );
 
-        setHistory((prev) => [
-          `WON €${data.result.moneyWon}`,
-          ...prev,
-        ]);
-      } else {
-        await setBalance(
-          balance - bet
-        );
-      }
+  confetti({
+    particleCount: 150,
+    spread: 120,
+  });
+
+  setHistory((prev) => [
+    `WON €${winnings}`,
+    ...prev,
+  ]);
+} else {
+  await setBalance(
+    balance - bet
+  );
+
+  setHistory((prev) => [
+    `LOST €${bet}`,
+    ...prev,
+  ]);
+}
     } catch (error) {
       console.error(error);
     }
@@ -151,25 +126,13 @@ export default function ReactionRushPage() {
 
         <br />
 
-        <h2>
-          {currentTime.toFixed(2)}
-        </h2>
+        <h2>{currentTime.toFixed(2)}</h2>
 
-        <BetInput
-          bet={bet}
-          balance={balance}
-          onChange={setBet}
-        />
+        <BetInput bet={bet} balance={balance} onChange={setBet} />
 
-        <GameButton
-          text="Play"
-          onClick={startGame}
-        />
+        <GameButton text="Play" onClick={startGame} />
 
-        <GameButton
-          text="Stop"
-          onClick={stopGame}
-        />
+        <GameButton text="Stop" onClick={stopGame} />
 
         <GameButton
           text="Reset"
@@ -190,9 +153,7 @@ export default function ReactionRushPage() {
 
             <p>
               Difference:
-              {Math.abs(
-                10 - time
-              ).toFixed(2)}
+              {Math.abs(10 - time).toFixed(2)}
             </p>
 
             <History items={history} />
