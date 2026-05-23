@@ -1,18 +1,25 @@
 "use client";
 
 import confetti from "canvas-confetti";
-import { useEffect, useState, useCallback } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+
 import HowToPlay from "@/components/HowToPlay";
 import "./style.css";
+
 import { useWallet } from "@/context/WalletContext";
+
 import BetInput from "../chocolateWheel/components/BetInput";
 import GameButton from "@/components/Gamebutton";
 import History from "@/components/History";
-import { playReactionRushRound } from "@/lib/reactionRush/playReactionRushRound";
+
+import { playGame } from "@/lib/playGame";
 import useSpaceKey from "@/hooks/useSpaceKey";
 
 export default function ReactionRushPage() {
-
   const [startTime, setStartTime] =
     useState<number | null>(null);
 
@@ -33,8 +40,39 @@ export default function ReactionRushPage() {
   const [history, setHistory] =
     useState<string[]>([]);
 
-  function startGame() {
+  const [identityToken, setIdentityToken] =
+    useState<string | null>(null);
 
+  useEffect(() => {
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const token =
+      params.get("identity_token");
+
+    setIdentityToken(token);
+  }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (isPlaying && startTime) {
+      interval = setInterval(() => {
+        const now = Date.now();
+
+        setCurrentTime(
+          (now - startTime) / 1000
+        );
+      }, 10);
+    }
+
+    return () =>
+      clearInterval(interval);
+  }, [isPlaying, startTime]);
+
+  function startGame() {
     if (bet > balance) return;
 
     setTime(null);
@@ -47,7 +85,6 @@ export default function ReactionRushPage() {
   }
 
   async function stopGame() {
-
     if (!startTime) return;
 
     const roundedTime =
@@ -58,11 +95,9 @@ export default function ReactionRushPage() {
     setIsPlaying(false);
 
     const difference =
-      Number(
-        Math.abs(
-          10 - currentTime
-        ).toFixed(2)
-      );
+      Math.abs(
+        10 - currentTime
+      ).toFixed(2);
 
     setHistory((prev) => [
       `⏱️ ${roundedTime}s | Diff: ${difference}s`,
@@ -70,21 +105,27 @@ export default function ReactionRushPage() {
     ]);
 
     try {
+      const data = await playGame({
+        game: "reaction-rush",
+        reactionTime: currentTime,
+        amount: bet,
 
-      const data =
-        await playReactionRushRound(
-          difference
-        );
+        identityToken:
+          identityToken ||
+          "123e4567-e89b-12d3-a456-426614174000",
+      });
 
       console.log(data);
 
       if (
-        data.gameResult.moneyWon
+        data.success &&
+        data.result?.moneyWon > 0
       ) {
+        const winnings =
+          data.result.moneyWon;
 
-        setBalance(
-          balance +
-          data.gameResult.moneyWon
+        await setBalance(
+          balance + winnings
         );
 
         confetti({
@@ -93,66 +134,43 @@ export default function ReactionRushPage() {
         });
 
         setHistory((prev) => [
-          `WON €${data.gameResult.moneyWon}`,
+          `WON €${winnings}`,
           ...prev,
         ]);
-
       } else {
-
-        setBalance(
+        await setBalance(
           balance - bet
         );
+
+        setHistory((prev) => [
+          `LOST €${bet}`,
+          ...prev,
+        ]);
       }
-
     } catch (error) {
-
       console.error(error);
     }
   }
 
   const handleGame =
-  useCallback(async() => {
-
-    if (isPlaying) {
-
-    await stopGame();
-
-    } else {
-
-      startGame();
-    }
-  }, [isPlaying, currentTime]);
+    useCallback(async () => {
+      if (isPlaying) {
+        await stopGame();
+      } else {
+        startGame();
+      }
+    }, [isPlaying, currentTime]);
 
   useSpaceKey({
     action: handleGame,
   });
 
-  useEffect(() => {
-
-    let interval: NodeJS.Timeout;
-
-    if (isPlaying && startTime) {
-
-      interval = setInterval(() => {
-
-        const now = Date.now();
-
-        setCurrentTime(
-          (now - startTime) / 1000
-        );
-
-      }, 10);
-    }
-
-    return () => clearInterval(interval);
-
-  }, [isPlaying, startTime]);
-
   return (
     <main>
       <div className="center-panel">
-
-        <h1>⏱️ Reaction Rush</h1>
+        <h1>
+          ⏱️ Reaction Rush
+        </h1>
 
         <p>
           Press SPACE to play
@@ -194,20 +212,15 @@ export default function ReactionRushPage() {
         <GameButton
           text="Reset"
           onClick={() => {
-
             setTime(0);
-
             setCurrentTime(0);
-
             setStartTime(null);
-
             setIsPlaying(false);
           }}
         />
 
         {time !== null && (
           <div>
-
             <p>
               Your Time:
               {time.toFixed(2)}
@@ -220,13 +233,9 @@ export default function ReactionRushPage() {
               ).toFixed(2)}
             </p>
 
-            <History
-              items={history}
-            />
-
+            <History items={history} />
           </div>
         )}
-
       </div>
     </main>
   );

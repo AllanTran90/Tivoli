@@ -1,6 +1,8 @@
+import "./home.css";
+
 export default function HomePage(){
   return(
-    <main>
+    <main >
       <h1>Tivoli</h1>
       <p>Welcome to the arcade!</p>
     </main>

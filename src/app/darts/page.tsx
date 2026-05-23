@@ -14,6 +14,7 @@ import { DARTS_COST, WINDS } from "@/lib/darts/constants";
 import { resetDartsRound } from "@/lib/darts/resetDartsRound";
 import ThrowButton from "@/components/darts/throwButton";
 import { useKeyboardAim } from "@/lib/darts/useKeyboardAim";
+import styles from ".@/components/darts/Darts.module.css";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
