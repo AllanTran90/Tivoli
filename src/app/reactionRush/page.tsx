@@ -43,18 +43,7 @@ export default function ReactionRushPage() {
   const [identityToken, setIdentityToken] =
     useState<string | null>(null);
 
-  useEffect(() => {
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-    const token =
-      params.get("identity_token");
-
-    setIdentityToken(token);
-  }, []);
-
+  // TIMER
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -72,6 +61,22 @@ export default function ReactionRushPage() {
       clearInterval(interval);
   }, [isPlaying, startTime]);
 
+  // GET TOKEN FROM URL
+  useEffect(() => {
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const token =
+      params.get("identity_token");
+
+    console.log(token);
+
+    setIdentityToken(token);
+  }, []);
+
+  // START GAME
   function startGame() {
     if (bet > balance) return;
 
@@ -84,6 +89,7 @@ export default function ReactionRushPage() {
     setIsPlaying(true);
   }
 
+  // STOP GAME
   async function stopGame() {
     if (!startTime) return;
 
@@ -91,13 +97,11 @@ export default function ReactionRushPage() {
       currentTime.toFixed(2);
 
     setTime(currentTime);
-
     setIsPlaying(false);
 
-    const difference =
-      Math.abs(
-        10 - currentTime
-      ).toFixed(2);
+    const difference = Math.abs(
+      10 - currentTime
+    ).toFixed(2);
 
     setHistory((prev) => [
       `⏱️ ${roundedTime}s | Diff: ${difference}s`,
@@ -108,8 +112,7 @@ export default function ReactionRushPage() {
       const data = await playGame({
         game: "reaction-rush",
         reactionTime: currentTime,
-        amount: bet,
-
+        amount: -bet,
         identityToken:
           identityToken ||
           "123e4567-e89b-12d3-a456-426614174000",
@@ -134,7 +137,7 @@ export default function ReactionRushPage() {
         });
 
         setHistory((prev) => [
-          `WON €${winnings}`,
+          `💰 WON €${winnings}`,
           ...prev,
         ]);
       } else {
@@ -143,7 +146,7 @@ export default function ReactionRushPage() {
         );
 
         setHistory((prev) => [
-          `LOST €${bet}`,
+          `❌ LOST €${bet}`,
           ...prev,
         ]);
       }
@@ -152,6 +155,7 @@ export default function ReactionRushPage() {
     }
   }
 
+  // SPACE KEY CONTROLS
   const handleGame =
     useCallback(async () => {
       if (isPlaying) {
@@ -181,9 +185,9 @@ export default function ReactionRushPage() {
         <HowToPlay
           title="How To Play"
           steps={[
-            "Press start to start the game",
+            "Press SPACE or Play to start",
             "Wait carefully",
-            "Press Stop at exactly 10.00",
+            "Press SPACE or Stop at exactly 10.00",
             "Closest time wins",
           ]}
         />
@@ -222,18 +226,20 @@ export default function ReactionRushPage() {
         {time !== null && (
           <div>
             <p>
-              Your Time:
+              Your Time:{" "}
               {time.toFixed(2)}
             </p>
 
             <p>
-              Difference:
+              Difference:{" "}
               {Math.abs(
                 10 - time
               ).toFixed(2)}
             </p>
 
-            <History items={history} />
+            <History
+              items={history}
+            />
           </div>
         )}
       </div>
