@@ -2,7 +2,7 @@
 
 import DartBoard from "@/components/darts/DartBoard";
 import { useState, useEffect } from "react";
-import GameButton from "@/components/Gamebutton";
+import GameButton from "@/components/GameButton";
 import History from "@/components/History";
 import confetti from "canvas-confetti";
 import { useWallet } from "@/context/WalletContext";
@@ -27,10 +27,10 @@ export default function DartsPage() {
   const [identityToken, setIdentityToken] = useState<string | null>(null);
 
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("identity_token");
-  setIdentityToken(token);
-}, []);
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("identity_token");
+    setIdentityToken(token);
+  }, []);
 
   useKeyboardAim({
     setAimX,

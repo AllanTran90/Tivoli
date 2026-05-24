@@ -6,7 +6,7 @@ import HowToPlay from "@/components/HowToPlay";
 import "./style.css";
 import { useWallet } from "@/context/WalletContext";
 import BetInput from "../chocolateWheel/components/BetInput";
-import GameButton from "@/components/Gamebutton";
+import GameButton from "@/components/GameButton";
 import History from "@/components/History";
 import { playGame } from "@/lib/playGame";
 import useSpaceKey from "@/hooks/useSpaceKey";

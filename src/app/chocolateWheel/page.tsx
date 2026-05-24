@@ -7,11 +7,10 @@ import NumberPicker from "./components/NumberPicker";
 import BetInput from "./components/BetInput";
 import { useWallet } from "@/context/WalletContext";
 import HowToPlay from "@/components/HowToPlay";
-import GameButton from "@/components/Gamebutton";
+import GameButton from "@/components/GameButton";
 import triggerWinConfetti from "@/lib/confetti";
 import { playChocolateWheelRound } from "@/lib/chocolateWheel/playChocolateWheelRound";
 import ChocolateWheelModules from "@/app/chocolateWheel/components/ChocolateWheel.modules.css";
-import stylecss from "@/app/chocolateWheel/style.css";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);

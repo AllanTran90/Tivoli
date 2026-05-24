@@ -5,17 +5,15 @@ type Props = {
   steps: string[];
 };
 
-export default function HowToPlay({
-  title,
-  steps,
-}: Props) {
+export default function HowToPlay({ title, steps }: Props) {
   return (
-    <div>
+    <section aria-label={title}>
       <h2>{title}</h2>
-
-      {steps.map((step) => (
-        <p key={step}>{step}</p>
-      ))}
-    </div>
+      <ol>
+        {steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ol>
+    </section>
   );
 }
