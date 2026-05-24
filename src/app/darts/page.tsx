@@ -14,7 +14,8 @@ import { DARTS_COST, WINDS } from "@/lib/darts/constants";
 import { resetDartsRound } from "@/lib/darts/resetDartsRound";
 import ThrowButton from "@/components/darts/throwButton";
 import { useKeyboardAim } from "@/lib/darts/useKeyboardAim";
-import styles from ".@/components/darts/Darts.module.css";
+import styles from "./darts.module.css";
+import InfoBar from "@/components/darts/Infobar";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -108,19 +109,11 @@ export default function DartsPage() {
     );
   }
 
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#5232a3ff",
-        color: "white",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: "40px",
-        padding: "40px",
-      }}
-    >
+ return (
+  <main className={styles.main}>
+    <div className={styles.board}>
+      <InfoBar score={score} throwsLeft={throwsLeft} wind={wind} />
+
       <DartBoard
         onScore={handleScore}
         throwsLeft={throwsLeft}
@@ -130,56 +123,43 @@ export default function DartsPage() {
         aimY={aimY}
         keyboardThrow={keyboardThrow}
       />
-
       <ThrowButton onThrow={throwRandomDart} />
+    </div>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-        }}
-      >
-        <HowToPlay
-          title="How To Play"
-          steps={[
-            "Each game costs €3 to play",
-            "You'll get 3 throws",
-            "Bulleyes gives bonus points",
-            "Try to get as many points as possible",
-            "The outer ring gives 2x points",
-            "The inner ring gives 3x points",
-            "You can use the arrow keys to aim and space to throw",
-          ]}
-        />
+    <div className={styles.sidebar}>
+      <HowToPlay
+        title="How To Play"
+        steps={[
+          "Each game costs €3 to play",
+          "You'll get 3 throws",
+          "Bulleyes gives bonus points",
+          "Try to get as many points as possible",
+          "The outer ring gives 2x points",
+          "The inner ring gives 3x points",
+          "You can use the arrow keys to aim and space to throw",
+        ]}
+      />
 
-        <div>
-          <h2>Wallet</h2>
-          <p>€ {balance}</p>
-        </div>
-
-        <GamePanel score={score} throwsLeft={throwsLeft} wind={wind} />
-
-        <History title="Throw History" items={history} />
-
-        <RewardSystem
-          value={score}
-          rules={[
-            {
-              condition: (v) => v >= 150,
-              reward: "x3 Money",
-            },
-            {
-              condition: (v) => v >= 100,
-              reward: "x2 Money",
-            },
-          ]}
-        />
-
-        {throwsLeft <= 0 && (
-          <GameButton text="Play Again" onClick={resetRound} />
-        )}
+      <div>
+        <h2>Wallet</h2>
+        <p>€ {balance}</p>
       </div>
-    </main>
-  );
+
+      <GamePanel score={score} throwsLeft={throwsLeft} wind={wind} />
+      <History title="Throw History" items={history} />
+
+      <RewardSystem
+        value={score}
+        rules={[
+          { condition: (v) => v >= 150, reward: "x3 Money" },
+          { condition: (v) => v >= 100, reward: "x2 Money" },
+        ]}
+      />
+
+      {throwsLeft <= 0 && (
+        <GameButton text="Play Again" onClick={resetRound} />
+      )}
+    </div>
+  </main>
+);
 }

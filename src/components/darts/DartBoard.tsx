@@ -176,6 +176,9 @@ export default function DartBoard({
       style={{
         borderRadius: "50%",
         border: "none",
+        width: "100%",
+        height: "auto", 
+        maxWidth: BOARD_SIZE,
       }}
     />
   );
