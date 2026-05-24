@@ -1,12 +1,9 @@
 "use client";
 
 import DartBoard from "@/components/darts/DartBoard";
-import GamePanel from "@/components/darts/GamePanel";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import GameButton from "@/components/Gamebutton";
-import HowToPlay from "@/components/HowToPlay";
 import History from "@/components/History";
-import RewardSystem from "@/components/RewardSystem";
 import confetti from "canvas-confetti";
 import { useWallet } from "@/context/WalletContext";
 import { playDartsRound } from "@/lib/darts/playDartsRound";
@@ -35,48 +32,30 @@ export default function DartsPage() {
   });
 
   function getRandomWind() {
-    const random = Math.floor(Math.random() * WINDS.length);
-
-    return WINDS[random];
+    return WINDS[Math.floor(Math.random() * WINDS.length)];
   }
 
-  // keyboard throwing
   function throwRandomDart() {
     if (throwsLeft <= 0) return;
-
     setKeyboardThrow(true);
-
-    setTimeout(() => {
-      setKeyboardThrow(false);
-    }, 100);
+    setTimeout(() => setKeyboardThrow(false), 100);
   }
 
   async function handleScore(points: number) {
-    // the throwings
     if (throwsLeft <= 0) return;
 
-    // updates score
     setScore((prev) => prev + points);
-
-    // updates history
     setHistory((prev) => [...prev, `Throw ${prev.length + 1} → ${points}`]);
-
-    // substracts throws
     setThrowsLeft((prev) => prev - 1);
 
     const newThrowsLeft = throwsLeft - 1;
-
     const finalScore = score + points;
 
     if (newThrowsLeft <= 0) {
       try {
         const data = await playDartsRound(finalScore);
-
-        console.log(data);
-
-        if (data.gameResult.moneyWon) {
-          setBalance(balance + data.gameResult.moneyWon);
-
+        if (data.result?.moneyWon) {
+          setBalance(balance + data.result.moneyWon);
           setHistory((prev) => [...prev, `Won €${data.gameResult.moneyWon}`]);
         }
       } catch (error) {
@@ -84,21 +63,15 @@ export default function DartsPage() {
       }
     }
 
-    // new wind
     setWind(getRandomWind());
 
     if (score + points >= 150) {
-      confetti({
-        particleCount: 200,
-        spread: 120,
-      });
+      confetti({ particleCount: 200, spread: 120 });
     }
   }
 
-  // RESET ROUND
   function resetRound() {
     setBalance(balance - DARTS_COST);
-
     resetDartsRound(
       setScore,
       setHistory,
@@ -109,9 +82,8 @@ export default function DartsPage() {
     );
   }
 
- return (
-  <main className={styles.main}>
-    <div className={styles.board}>
+  return (
+    <main className={styles.main}>
       <InfoBar score={score} throwsLeft={throwsLeft} wind={wind} />
 
       <DartBoard
@@ -123,43 +95,12 @@ export default function DartsPage() {
         aimY={aimY}
         keyboardThrow={keyboardThrow}
       />
+
       <ThrowButton onThrow={throwRandomDart} />
-    </div>
 
-    <div className={styles.sidebar}>
-      <HowToPlay
-        title="How To Play"
-        steps={[
-          "Each game costs €3 to play",
-          "You'll get 3 throws",
-          "Bulleyes gives bonus points",
-          "Try to get as many points as possible",
-          "The outer ring gives 2x points",
-          "The inner ring gives 3x points",
-          "You can use the arrow keys to aim and space to throw",
-        ]}
-      />
-
-      <div>
-        <h2>Wallet</h2>
-        <p>€ {balance}</p>
-      </div>
-
-      <GamePanel score={score} throwsLeft={throwsLeft} wind={wind} />
       <History title="Throw History" items={history} />
 
-      <RewardSystem
-        value={score}
-        rules={[
-          { condition: (v) => v >= 150, reward: "x3 Money" },
-          { condition: (v) => v >= 100, reward: "x2 Money" },
-        ]}
-      />
-
-      {throwsLeft <= 0 && (
-        <GameButton text="Play Again" onClick={resetRound} />
-      )}
-    </div>
-  </main>
-);
+      {throwsLeft <= 0 && <GameButton text="Play Again" onClick={resetRound} />}
+    </main>
+  );
 }
