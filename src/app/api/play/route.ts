@@ -63,6 +63,7 @@ export async function POST(
 
     console.log("BODY:", body);
     console.log("RESULT:", result);
+    console.log("IDENTITY TOKEN:", body.identityToken);
 
     // Create transaction
     const transaction =
