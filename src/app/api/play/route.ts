@@ -1,21 +1,15 @@
 import { NextResponse } from "next/server";
-
 import { handleDarts } from "@/lib/games/darts";
 import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
 import { handleReactionRush } from "@/lib/games/reactionRush";
-
-import {
-  createTransaction,
-  payoutTransaction,
-} from "@/lib/centralBanken";
+import { createTransaction,payoutTransaction, } from "@/lib/centralBanken";
 
 export async function POST(
   request: Request
 ) {
   try {
-    const body = await request.json();
-
-    console.log("BODY:", body);
+    const body =
+      await request.json();
 
     const { game } = body;
 
@@ -30,7 +24,8 @@ export async function POST(
 
     // CHOCOLATE WHEEL
     else if (
-      game === "chocolate-wheel"
+      game ===
+      "chocolate-wheel"
     ) {
       result =
         handleChocolateWheel(
@@ -42,7 +37,8 @@ export async function POST(
 
     // REACTION RUSH
     else if (
-      game === "reaction-rush"
+      game ===
+      "reaction-rush"
     ) {
       result =
         handleReactionRush(
@@ -64,30 +60,44 @@ export async function POST(
     }
 
     console.log("BODY:", body);
-    console.log("RESULT:", result);
-    console.log("IDENTITY TOKEN:", body.identityToken);
 
-    // Create transaction
+    console.log(
+      "RESULT:",
+      result
+    );
+
+    console.log(
+      "IDENTITY TOKEN:",
+      body.identityToken
+    );
+
+    // CREATE TRANSACTION
     const transaction =
       await createTransaction(
         body.identityToken,
         body.amount
       );
 
-    // Payout if user won
-    if (
-      result.moneyWon > 0
-    ) {
-      await payoutTransaction(
-        transaction.transaction_id,
-        result.moneyWon
-      );
-    }
-
     console.log(
       "TRANSACTION:",
       transaction
     );
+
+    // PAYOUT IF PLAYER WON
+    if (
+      result.moneyWon > 0
+    ) {
+      const payout =
+        await payoutTransaction(
+          transaction.transaction_id,
+          result.moneyWon
+        );
+
+      console.log(
+        "PAYOUT:",
+        payout
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -95,13 +105,19 @@ export async function POST(
       transaction,
     });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "API ERROR:",
+      error
+    );
 
     return NextResponse.json(
       {
         success: false,
+
         error:
-          "Something went wrong",
+          error instanceof Error
+            ? error.message
+            : "Unknown error",
       },
       {
         status: 500,

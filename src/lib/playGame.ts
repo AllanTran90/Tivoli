@@ -2,11 +2,8 @@ type PlayGameProps = {
   game: string;
   amount: number;
   identityToken: string;
-
   score?: number;
-
   reactionTime?: number;
-
   selectedNumber?: number;
   resultNumber?: number;
   multiplier?: number;
@@ -30,6 +27,5 @@ export async function playGame(
       ),
     }
   );
-
   return response.json();
 }

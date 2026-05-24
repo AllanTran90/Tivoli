@@ -1,12 +1,12 @@
 export async function playReactionRushRound(
-  reactionTime: number
+  reactionTime: number,
+  bet: number,
+  identityToken: string
 ) {
 
-  const response = await fetch(
-    "/api/play",
+  const response = await fetch("/api/play",
     {
       method: "POST",
-
       headers: {
         "Content-Type":
           "application/json",
@@ -14,13 +14,9 @@ export async function playReactionRushRound(
 
       body: JSON.stringify({
         game: "reaction-rush",
-
         reactionTime,
-
-        amount: -2,
-
-        identityToken:
-          "user",
+        amount: bet,
+        identityToken,
       }),
     }
   );
