@@ -71,7 +71,7 @@ export default function ReactionRushPage() {
       game: "reaction-rush",
       reactionTime: currentTime,
       amount: -bet,
-      identityToken,
+      identityToken: identityToken || "",
     });
 
     if (roundedTime === "10.00") {
