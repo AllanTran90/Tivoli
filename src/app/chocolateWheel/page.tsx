@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import "./style.css";
+import styles from "./chocolateWheel.module.css";
 import Wheel from "./components/Wheel";
 import NumberPicker from "./components/NumberPicker";
 import BetInput from "./components/BetInput";
@@ -10,7 +10,6 @@ import HowToPlay from "@/components/HowToPlay";
 import GameButton from "@/components/GameButton";
 import triggerWinConfetti from "@/lib/confetti";
 import { playChocolateWheelRound } from "@/lib/chocolateWheel/playChocolateWheelRound";
-import ChocolateWheelModules from "@/app/chocolateWheel/components/ChocolateWheel.modules.css";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
@@ -23,9 +22,7 @@ export default function ChocolateWheel() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-
     const token = params.get("identity_token");
-
     setIdentityToken(token);
   }, []);
 
@@ -34,9 +31,7 @@ export default function ChocolateWheel() {
 
     const values = [1, 2, 3, 4, 5, 6];
     const random = values[Math.floor(Math.random() * values.length)];
-
     const sliceSize = 360 / 6;
-
     const sliceIndex = random - 1;
     const sliceCenter = sliceIndex * sliceSize + sliceSize / 2;
     const pointerAngle = 270 + 30;
@@ -44,22 +39,16 @@ export default function ChocolateWheel() {
     const current = rotation % 360;
 
     let delta = targetAngle - current;
-
-    if (delta < 0) {
-      delta += 360;
-    }
+    if (delta < 0) delta += 360;
 
     const newRotation = rotation + delta + 3 * 360;
-
     setRotation(newRotation);
 
     setTimeout(async () => {
       setResult(random);
 
       setHistory((prev) => [
-        `${
-          random === selectedNumber ? "WIN 🎉" : "LOSS 😢"
-        } | Number: ${random} | Bet: ${bet}`,
+        `${random === selectedNumber ? "WIN 🎉" : "LOSS 😢"} | Number: ${random} | Bet: ${bet}`,
         ...prev,
       ]);
 
@@ -71,17 +60,12 @@ export default function ChocolateWheel() {
           identityToken || undefined,
         );
 
-        console.log(data);
-
         if (data.success && data.result?.moneyWon > 0) {
           triggerWinConfetti();
-
           setBalance(balance + data.result.moneyWon);
-
           setHistory((prev) => [`WON €${data.result.moneyWon}`, ...prev]);
         } else {
           setBalance(balance - bet);
-
           setHistory((prev) => [`LOST €${bet}`, ...prev]);
         }
       } catch (error) {
@@ -91,21 +75,18 @@ export default function ChocolateWheel() {
   }
 
   return (
-    <div className="container">
-      <h1>🍫 Chocolate Wheel</h1>
+    <div className={styles.container}>
+      <h1> Chocolate Wheel</h1>
 
-      <div className="layout">
-        <div className="left-panel">
+      <div className={styles.layout}>
+        <div className={styles.leftPanel}>
           <BetInput bet={bet} balance={balance} onChange={setBet} />
 
-          <div className="game-row">
-            <NumberPicker
-              selected={selectedNumber}
-              onSelect={setSelectedNumber}
-            />
+          <div className={styles.gameRow}>
+            <NumberPicker selected={selectedNumber} onSelect={setSelectedNumber} />
           </div>
 
-          <div className="center-panel">
+          <div className={styles.centerPanel}>
             <Wheel rotation={rotation} />
           </div>
 
@@ -113,20 +94,21 @@ export default function ChocolateWheel() {
             text="SPIN"
             onClick={spin}
             disabled={selectedNumber === null}
-            className="spin"
+            className={styles.spin}
           />
 
           {result !== null && (
-            <p className={result === selectedNumber ? "win" : "lose"}>
+            <p className={result === selectedNumber ? styles.win : styles.lose}>
               {result === selectedNumber
                 ? `🎉 You won! (${result})`
                 : `😢 You lost (${result})`}
             </p>
           )}
         </div>
-        <div className="right-panel">
+
+        <div className={styles.rightPanel}>
           <HowToPlay
-            title="How  To Play"
+            title="How To Play"
             steps={[
               "It costs 2€ to play",
               "Each spin costs your bet amount",
@@ -137,12 +119,9 @@ export default function ChocolateWheel() {
             ]}
           />
           <br />
-
           <h3>📜 History</h3>
-
-          <div className="history-box">
+          <div className={styles.historyBox}>
             {history.length === 0 && <p>No games yet</p>}
-
             {history.map((entry, i) => (
               <p key={i}>{entry}</p>
             ))}

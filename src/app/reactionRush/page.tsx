@@ -3,7 +3,7 @@
 import confetti from "canvas-confetti";
 import { useEffect, useState, useCallback } from "react";
 import HowToPlay from "@/components/HowToPlay";
-import "./style.css";
+import Module from "reactionRush.module.css";
 import { useWallet } from "@/context/WalletContext";
 import BetInput from "../chocolateWheel/components/BetInput";
 import GameButton from "@/components/GameButton";
