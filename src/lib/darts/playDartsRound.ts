@@ -1,4 +1,4 @@
-export async function playDartsRound(score: number) {
+export async function playDartsRound(score: number, identityToken: string) {
     const response = await fetch("/api/play", {
     method: "POST",
     headers: {
@@ -7,8 +7,9 @@ export async function playDartsRound(score: number) {
     body: JSON.stringify({
         game: "darts",
         score,
-        amount: -3,
-        identityToken: "user"})
+        amount: 3,
+        identityToken,
+      }),
 
   });
 return response.json();

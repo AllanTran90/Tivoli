@@ -1,7 +1,7 @@
 "use client";
 
 import DartBoard from "@/components/darts/DartBoard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GameButton from "@/components/Gamebutton";
 import History from "@/components/History";
 import confetti from "canvas-confetti";
@@ -24,6 +24,13 @@ export default function DartsPage() {
   const [aimY, setAimY] = useState(300);
   const { balance, setBalance } = useWallet();
   const [keyboardThrow, setKeyboardThrow] = useState(false);
+  const [identityToken, setIdentityToken] = useState<string | null>(null);
+
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("identity_token");
+  setIdentityToken(token);
+}, []);
 
   useKeyboardAim({
     setAimX,
@@ -53,10 +60,10 @@ export default function DartsPage() {
 
     if (newThrowsLeft <= 0) {
       try {
-        const data = await playDartsRound(finalScore);
+        const data = await playDartsRound(finalScore, identityToken || "");
         if (data.result?.moneyWon) {
           setBalance(balance + data.result.moneyWon);
-          setHistory((prev) => [...prev, `Won €${data.gameResult.moneyWon}`]);
+          setHistory((prev) => [...prev, `Won €${data.result.moneyWon}`]);
         }
       } catch (error) {
         console.error(error);
