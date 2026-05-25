@@ -4,15 +4,25 @@ type Props = {
   onChange: (value: number) => void;
 };
 
-export default function BetInput({ bet, balance, onChange }: Props) {
+export default function BetInput({
+  bet,
+  balance,
+  onChange,
+}: Props) {
   return (
     <div>
-      <p>💰 Balance: {balance}€</p>
+      <p>❤️ Lives: {balance}</p>
 
       <input
         type="number"
+        min={1}
+        max={balance}
         value={bet}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) =>
+          onChange(
+            Number(e.target.value)
+          )
+        }
       />
     </div>
   );

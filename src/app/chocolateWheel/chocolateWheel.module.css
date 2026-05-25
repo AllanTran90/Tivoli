@@ -1,5 +1,5 @@
 .container {
-  padding: 20px;
+  padding: 8px;
   color: white;
 }
 
@@ -29,10 +29,12 @@
 
 .pointer {
   position: absolute;
-  top: -10px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 20px;
+  font-size: 32px;
+  z-index: 10;
+  color: rgb(5, 0, 0);
 }
 
 .sliceText {
@@ -97,8 +99,8 @@
 .layout {
   display: grid;
   grid-template-columns: 1fr 300px;
-  gap: 40px;
-  padding: 40px;
+  gap: 24px;
+  padding: 12px;
 }
 
 .leftPanel {
@@ -141,21 +143,46 @@
   margin: 2px 0;
 }
 
+.topSection {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
 @media (max-width: 768px) {
   .layout {
-    grid-template-columns: 1fr;
-    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
     gap: 12px;
   }
 
-  .wheelContainer {
-    width: 250px;
-    height: 250px;
+  .topSection {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
   }
 
-  .numberButton {
-    width: 52px;
-    height: 52px;
-    font-size: 26px;
+  .numberGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 0;
+  }
+
+  .rightPanel {
+    flex: 1;
+    padding: 12px;
+  }
+
+  .wheelContainer {
+    width: 220px;
+    height: 220px;
+    margin: 12px auto;
+  }
+
+  .spin {
+    width: 100%;
+    margin-top: 8px;
   }
 }

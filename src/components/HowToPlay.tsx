@@ -9,11 +9,11 @@ export default function HowToPlay({ title, steps }: Props) {
   return (
     <section aria-label={title}>
       <h2>{title}</h2>
-      <ol>
+      <ul>
         {steps.map((step) => (
           <li key={step}>{step}</li>
         ))}
-      </ol>
+      </ul>
     </section>
   );
 }

@@ -13,10 +13,11 @@ import ThrowButton from "@/components/darts/throwButton";
 import { useKeyboardAim } from "@/lib/darts/useKeyboardAim";
 import styles from "./darts.module.css";
 import InfoBar from "@/components/darts/Infobar";
+import HowToPlay from "@/components/HowToPlay";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
-  const [throwsLeft, setThrowsLeft] = useState(2);
+  const [throwsLeft, setThrowsLeft] = useState(3);
   const [history, setHistory] = useState<string[]>([]);
   const [clearBoard, setClearBoard] = useState(false);
   const [wind, setWind] = useState("Left");
@@ -104,6 +105,18 @@ export default function DartsPage() {
       />
 
       <ThrowButton onThrow={throwRandomDart} />
+
+      <HowToPlay
+        title="How To Play"
+        steps={[
+          "Each round costs 1 ❤️",
+          "You get 3 darts",
+          "Use arrow keys to aim",
+          "Press SPACE or Throw button",
+          "Reach 150 points to win ❤️",
+          "180 points gives bonus ❤️",
+        ]}
+      />
 
       <History title="Throw History" items={history} />
 
