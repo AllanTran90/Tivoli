@@ -7,6 +7,7 @@ import {
   useEffect,
 } from "react";
 
+import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type WalletContextType = {
@@ -28,6 +29,8 @@ export function WalletProvider({
 }) {
   const [plays, setPlaysState] =
     useState(5);
+
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!supabase) return;
@@ -52,6 +55,22 @@ export function WalletProvider({
     fetchWallet();
   }, []);
 
+  useEffect(() => {
+    const gamePages = [
+      "/darts",
+      "/chocolateWheel",
+      "/reactionRush",
+    ];
+
+    if (
+      plays <= 0 &&
+      gamePages.includes(pathname)
+    ) {
+      window.location.href =
+        "https://loopland.se";
+    }
+  }, [plays, pathname]);
+
   async function setPlays(
     value: number
   ) {
@@ -60,7 +79,7 @@ export function WalletProvider({
     setPlaysState(value);
 
     const { error } =
-      await supabase!
+      await supabase
         .from("wallet")
         .update({ plays: value })
         .eq("id", 1);
