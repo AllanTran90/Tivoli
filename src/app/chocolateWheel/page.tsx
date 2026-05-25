@@ -14,7 +14,7 @@ import { playChocolateWheelRound } from "@/lib/chocolateWheel/playChocolateWheel
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
-  const { balance, setBalance } = useWallet();
+  const { plays, setPlays } = useWallet();
   const [bet, setBet] = useState(2);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
@@ -27,7 +27,7 @@ export default function ChocolateWheel() {
   }, []);
 
   function spin() {
-    if (bet > balance || selectedNumber === null) return;
+    if (bet > plays || selectedNumber === null) return;
 
     const values = [1, 2, 3, 4, 5, 6];
     const random = values[Math.floor(Math.random() * values.length)];
@@ -62,10 +62,10 @@ export default function ChocolateWheel() {
 
         if (data.success && data.result?.moneyWon > 0) {
           triggerWinConfetti();
-          setBalance(balance + data.result.moneyWon);
+          setPlays(plays + data.result.moneyWon);
           setHistory((prev) => [`WON €${data.result.moneyWon}`, ...prev]);
         } else {
-          setBalance(balance - bet);
+          setPlays(plays - bet);
           setHistory((prev) => [`LOST €${bet}`, ...prev]);
         }
       } catch (error) {
@@ -80,7 +80,7 @@ export default function ChocolateWheel() {
 
       <div className={styles.layout}>
         <div className={styles.leftPanel}>
-          <BetInput bet={bet} balance={balance} onChange={setBet} />
+          <BetInput bet={bet} balance={plays} onChange={setBet} />
 
           <div className={styles.gameRow}>
             <NumberPicker selected={selectedNumber} onSelect={setSelectedNumber} />

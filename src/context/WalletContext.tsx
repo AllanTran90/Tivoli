@@ -1,70 +1,95 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
+
 import { supabase } from "@/lib/supabase";
 
 type WalletContextType = {
-  balance: number;
-  setBalance: ( value:number) => Promise<void>;
+  plays: number;
+  setPlays: (
+    value: number
+  ) => Promise<void>;
 };
 
-const WalletContext = createContext<WalletContextType | null>(null);
+const WalletContext =
+  createContext<WalletContextType | null>(
+    null
+  );
 
-export function WalletProvider({ children }: { children: React.ReactNode; }) {
-  const [balance, setBalanceState] = useState(150);
+export function WalletProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [plays, setPlaysState] =
+    useState(5);
 
-  
-  useEffect (() => {
-      if (!supabase) return;
+  useEffect(() => {
+    if (!supabase) return;
 
-      const client = supabase;
+    async function fetchWallet() {
+      const { data, error } =
+        await supabase!
+          .from("wallet")
+          .select("plays")
+          .eq("id", 1)
+          .maybeSingle();
 
-  async function fetchWallet() {
-  const { data, error } = await client
-    .from("wallet")
-    .select("balance")
-    .eq("id", 1)
-    .maybeSingle();
+      if (data) {
+        setPlaysState(data.plays);
+      }
 
-  if (data) {
-    setBalanceState(data.balance);
-  }
-
-  if (error) {
-    console.log(error.message);
-  }
-}
+      if (error) {
+        console.log(error.message);
+      }
+    }
 
     fetchWallet();
   }, []);
 
-async function setBalance(value: number) {
+  async function setPlays(
+    value: number
+  ) {
     if (!supabase) return;
-    setBalanceState(value);
 
-  const { error } = await supabase
-    .from("wallet")
-    .update({ balance: value })
-    .eq("id", 1);
+    setPlaysState(value);
 
-  if (error) {
-    console.log(error.message);
+    const { error } =
+      await supabase!
+        .from("wallet")
+        .update({ plays: value })
+        .eq("id", 1);
+
+    if (error) {
+      console.log(error.message);
+    }
   }
-}
 
   return (
-    <WalletContext.Provider 
-    value={{ balance, setBalance }}>
+    <WalletContext.Provider
+      value={{
+        plays,
+        setPlays,
+      }}
+    >
       {children}
     </WalletContext.Provider>
   );
 }
 
 export function useWallet() {
-  const context = useContext(WalletContext);
+  const context =
+    useContext(WalletContext);
 
   if (!context) {
-    throw new Error("useWallet must be used inside WalletProvider");
+    throw new Error(
+      "useWallet must be used inside WalletProvider"
+    );
   }
 
   return context;

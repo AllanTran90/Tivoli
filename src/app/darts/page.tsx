@@ -22,7 +22,7 @@ export default function DartsPage() {
   const [wind, setWind] = useState("Left");
   const [aimX, setAimX] = useState(300);
   const [aimY, setAimY] = useState(300);
-  const { balance, setBalance } = useWallet();
+  const { plays, setPlays } = useWallet();
   const [keyboardThrow, setKeyboardThrow] = useState(false);
   const [identityToken, setIdentityToken] = useState<string | null>(null);
 
@@ -62,7 +62,7 @@ export default function DartsPage() {
       try {
         const data = await playDartsRound(finalScore, identityToken || "");
         if (data.result?.moneyWon) {
-          setBalance(balance + data.result.moneyWon);
+          setPlays(plays + data.result.moneyWon);
           setHistory((prev) => [...prev, `Won €${data.result.moneyWon}`]);
         }
       } catch (error) {
@@ -78,7 +78,7 @@ export default function DartsPage() {
   }
 
   function resetRound() {
-    setBalance(balance - DARTS_COST);
+    setPlays(plays - DARTS_COST);
     resetDartsRound(
       setScore,
       setHistory,

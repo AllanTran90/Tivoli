@@ -16,7 +16,7 @@ export default function ReactionRushPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [time, setTime] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const { balance, setBalance } = useWallet();
+  const { plays, setPlays } = useWallet();
   const [bet, setBet] = useState(2);
   const [history, setHistory] = useState<string[]>([]);
   const [identityToken, setIdentityToken] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export default function ReactionRushPage() {
 
   // START GAME
   function startGame() {
-    if (bet > balance) return;
+    if (bet > plays) return;
 
     setTime(null);
     setCurrentTime(0);
@@ -83,7 +83,7 @@ export default function ReactionRushPage() {
       if (data.success && data.result?.moneyWon > 0) {
         const winnings = data.result.moneyWon;
 
-        await setBalance(balance + winnings);
+        await setPlays(plays + winnings);
 
         confetti({
           particleCount: 150,
@@ -92,7 +92,7 @@ export default function ReactionRushPage() {
 
         setHistory((prev) => [`💰 WON €${winnings}`, ...prev]);
       } else {
-        await setBalance(balance - bet);
+        await setPlays(plays - bet);
 
         setHistory((prev) => [`❌ LOST €${bet}`, ...prev]);
       }
@@ -137,7 +137,7 @@ export default function ReactionRushPage() {
 
         <h2>{currentTime.toFixed(2)}</h2>
 
-        <BetInput bet={bet} balance={balance} onChange={setBet} />
+        <BetInput bet={bet} balance={plays} onChange={setBet} />
 
         <GameButton text={isPlaying ? "Stop" : "Play"} onClick={handleGame} />
 
