@@ -17,7 +17,7 @@ export default function ReactionRushPage() {
   const [time, setTime] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { plays, setPlays } = useWallet();
-  const [bet, setBet] = useState(2);
+  const [bet, setBet] = useState(1);
   const [history, setHistory] = useState<string[]>([]);
   const [identityToken, setIdentityToken] = useState<string | null>(null);
 

@@ -16,7 +16,7 @@ import InfoBar from "@/components/darts/Infobar";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
-  const [throwsLeft, setThrowsLeft] = useState(3);
+  const [throwsLeft, setThrowsLeft] = useState(2);
   const [history, setHistory] = useState<string[]>([]);
   const [clearBoard, setClearBoard] = useState(false);
   const [wind, setWind] = useState("Left");

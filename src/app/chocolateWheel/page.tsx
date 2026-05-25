@@ -15,7 +15,7 @@ export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
   const { plays, setPlays } = useWallet();
-  const [bet, setBet] = useState(2);
+  const [bet, setBet] = useState(1);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
   const [identityToken, setIdentityToken] = useState<string | null>(null);
