@@ -75,7 +75,7 @@ export default function DartsPage() {
     const newThrowsLeft = throwsLeft - 1;
     const finalScore = score + points;
 
-    if (newThrowsLeft <= 0) {
+    if (newThrowsLeft <= 0 && identityToken) {
       try {
         const data = await playDartsRound(finalScore, identityToken || "");
         await saveScore("darts", "Player", finalScore);

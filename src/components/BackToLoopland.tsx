@@ -1,22 +1,21 @@
 "use client";
 
+import styles from "./BackToLoopland.module.css";
+
 export default function BackToLoopland() {
+  function handleBack() {
+    window.parent.postMessage(
+      { type: "AMUSEMENT_CLOSE" },
+      "*"
+    );
+
+    window.location.href = "https://loopland.se";
+  }
+
   return (
     <button
-      style={{
-        position: "absolute",
-        top: "1rem",
-        right: "1rem",
-        zIndex: 1000,
-      }}
-      onClick={() =>
-        window.parent.postMessage(
-          {
-            type: "AMUSEMENT_CLOSE",
-          },
-          "*"
-        )
-      }
+      className={styles.backButton}
+      onClick={handleBack}
     >
       Back to Loopland
     </button>

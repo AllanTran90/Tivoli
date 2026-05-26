@@ -1,4 +1,10 @@
 export async function playDartsRound(score: number, identityToken: string) {
+
+    console.log(
+    "IDENTITY TOKEN:",
+    identityToken
+  );
+
     const response = await fetch("/api/play", {
     method: "POST",
     headers: {
