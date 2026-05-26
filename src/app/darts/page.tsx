@@ -2,7 +2,7 @@
 
 import DartBoard from "@/components/darts/DartBoard";
 import { useState, useEffect } from "react";
-import GameButton from "@/components/Gamebutton";
+import GameButton from "@/components/GameButton";
 import History from "@/components/History";
 import confetti from "canvas-confetti";
 import { useWallet } from "@/context/WalletContext";

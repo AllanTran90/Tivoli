@@ -1,4 +1,4 @@
-import GameButton from "@/components/Gamebutton";
+import GameButton from "@/components/GameButton";
 
 type ThrowButtonProps = {
     onThrow: () => void;
