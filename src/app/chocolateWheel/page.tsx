@@ -121,6 +121,8 @@ export default function ChocolateWheel() {
   <div className={styles.container}>
     <h1>Chocolate Wheel</h1>
 
+    <BackToLoopland />
+    
     <div className={styles.layout}>
 
       <div className={styles.topSection}>
@@ -133,7 +135,6 @@ export default function ChocolateWheel() {
             />
           </div>
         </div>
-        <BackToLoopland />
 
         <div className={styles.rightPanel}>
           <HowToPlay
