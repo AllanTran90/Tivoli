@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useWallet } from "@/context/WalletContext";
 
 export default function Navbar() {
-    const { balance } = useWallet();
+    const { plays } = useWallet();
 
  return (
     <nav
@@ -27,7 +27,7 @@ export default function Navbar() {
         <Link href="/leaderboard">Leaderboard</Link>
       </div>
 
-      <p>💰 {balance} Coins</p>
+      <p>❤️ {plays} Lives</p>
     </nav>
   );
 }

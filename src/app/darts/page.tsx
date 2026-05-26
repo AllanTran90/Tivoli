@@ -13,6 +13,7 @@ import ThrowButton from "@/components/darts/throwButton";
 import { useKeyboardAim } from "@/lib/darts/useKeyboardAim";
 import styles from "./darts.module.css";
 import InfoBar from "@/components/darts/Infobar";
+import HowToPlay from "@/components/HowToPlay";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -22,15 +23,15 @@ export default function DartsPage() {
   const [wind, setWind] = useState("Left");
   const [aimX, setAimX] = useState(300);
   const [aimY, setAimY] = useState(300);
-  const { balance, setBalance } = useWallet();
+  const { plays, setPlays } = useWallet();
   const [keyboardThrow, setKeyboardThrow] = useState(false);
   const [identityToken, setIdentityToken] = useState<string | null>(null);
 
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("identity_token");
-  setIdentityToken(token);
-}, []);
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("identity_token");
+    setIdentityToken(token);
+  }, []);
 
   useKeyboardAim({
     setAimX,
@@ -62,7 +63,7 @@ export default function DartsPage() {
       try {
         const data = await playDartsRound(finalScore, identityToken || "");
         if (data.result?.moneyWon) {
-          setBalance(balance + data.result.moneyWon);
+          setPlays(plays + data.result.moneyWon);
           setHistory((prev) => [...prev, `Won €${data.result.moneyWon}`]);
         }
       } catch (error) {
@@ -78,7 +79,7 @@ export default function DartsPage() {
   }
 
   function resetRound() {
-    setBalance(balance - DARTS_COST);
+    setPlays(plays - DARTS_COST);
     resetDartsRound(
       setScore,
       setHistory,
@@ -104,6 +105,18 @@ export default function DartsPage() {
       />
 
       <ThrowButton onThrow={throwRandomDart} />
+
+      <HowToPlay
+        title="How To Play"
+        steps={[
+          "Each round costs 1 ❤️",
+          "You get 3 darts",
+          "Use arrow keys to aim",
+          "Press SPACE or Throw button",
+          "Reach 150 points to win ❤️",
+          "180 points gives bonus ❤️",
+        ]}
+      />
 
       <History title="Throw History" items={history} />
 

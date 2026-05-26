@@ -1,18 +1,21 @@
-"use client"
+"use client";
 
-import { useWallet } from "@/context/WalletContext"
+import { useWallet } from "@/context/WalletContext";
 
-export default function WalletPage(){
-    const { balance } = useWallet();
+export default function WalletPage() {
+  const { plays } = useWallet();
 
-    return (
-        <main>
-            <h1>
-                💰 Wallet
-            </h1>
-            <p>
-                Balance: {balance} Coins
-            </p>
-        </main>
-    );
+  return (
+    <main>
+      <h1>❤️ Wallet</h1>
+
+      <p>
+        Lives Remaining:
+      </p>
+
+      <p>
+        {"❤️".repeat(plays)}
+      </p>
+    </main>
+  );
 }
