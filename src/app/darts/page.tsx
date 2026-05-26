@@ -16,6 +16,7 @@ import InfoBar from "@/components/darts/Infobar";
 import HowToPlay from "@/components/HowToPlay";
 import { saveScore } from "@/lib/leaderboard";
 import BackToLoopland from "@/components/BackToLoopland";
+import PlayerNameInput from "../leaderboard/PlayerNameInput";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -28,26 +29,22 @@ export default function DartsPage() {
   const { plays, setPlays } = useWallet();
   const [keyboardThrow, setKeyboardThrow] = useState(false);
   const [identityToken, setIdentityToken] = useState<string | null>(null);
+  const [playerName, setPlayerName] = useState("");
+  const [selectedGame, setSelectedGame] = useState("darts");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("identity_token");
     console.log("TOKEN FROM URL:", token);
 
-     if (token) {
-    setIdentityToken(token);
+    if (token) {
+      setIdentityToken(token);
 
-    window.history.replaceState(
-      {},
-      "",
-      "/darts"
-    );
-  } else {
-    console.log(
-      "No identity token found"
-    );
-  }
-}, []);
+      window.history.replaceState({}, "", "/darts");
+    } else {
+      console.log("No identity token found");
+    }
+  }, []);
 
   useKeyboardAim({
     setAimX,
@@ -78,7 +75,7 @@ export default function DartsPage() {
     if (newThrowsLeft <= 0 && identityToken) {
       try {
         const data = await playDartsRound(finalScore, identityToken || "");
-        await saveScore("darts", "Player", finalScore);
+        await saveScore("darts", playerName, finalScore,);
       } catch (error) {
         console.error(error);
       }
@@ -131,6 +128,8 @@ export default function DartsPage() {
           "180 points gives bonus ❤️",
         ]}
       />
+
+      <PlayerNameInput playerName={playerName} setPlayerName={setPlayerName} />
 
       <History title="Throw History" items={history} />
 
