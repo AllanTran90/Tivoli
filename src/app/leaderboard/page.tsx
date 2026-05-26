@@ -5,13 +5,19 @@ import { getLeaderboard } from "@/lib/leaderboard";
 import GameSelector from "@/app/leaderboard/GameSelector";
 import { useState, useEffect } from "react";
 
+type Player = {
+  id: number;
+  player: string;
+  score: number;
+};
+
 export default function LeaderboardPage() {
 
   const [selectedGame, setSelectedGame] =
     useState("darts");
 
   const [players, setPlayers] =
-    useState<any[]>([]);
+    useState<Player[]>([]);
 
   useEffect(() => {
 
@@ -43,7 +49,11 @@ export default function LeaderboardPage() {
 
       <div className={styles.list}>
 
-        {players?.map((player, index) => {
+        {players.length === 0 && (
+          <p>No scores yet 🎯</p>
+        )}
+
+        {players.map((player, index) => {
 
           let rankStyle =
             styles.default;
@@ -72,7 +82,7 @@ export default function LeaderboardPage() {
               </span>
 
               <span>
-                🎯 {player.score}
+                🎯 🎯 {Number(player.score).toFixed(2)}
               </span>
 
             </div>

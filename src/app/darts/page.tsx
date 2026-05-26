@@ -26,23 +26,44 @@ export default function DartsPage() {
   const [wind, setWind] = useState("Left");
   const [aimX, setAimX] = useState(300);
   const [aimY, setAimY] = useState(300);
+
   const { plays, setPlays } = useWallet();
-  const [keyboardThrow, setKeyboardThrow] = useState(false);
-  const [identityToken, setIdentityToken] = useState<string | null>(null);
-  const [playerName, setPlayerName] = useState("");
-  const [selectedGame, setSelectedGame] = useState("darts");
+
+  const [keyboardThrow, setKeyboardThrow] =
+    useState(false);
+
+  const [identityToken, setIdentityToken] =
+    useState<string | null>(null);
+
+  const [playerName, setPlayerName] =
+    useState("");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("identity_token");
-    console.log("TOKEN FROM URL:", token);
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const token =
+      params.get("identity_token");
+
+    console.log(
+      "TOKEN FROM URL:",
+      token
+    );
 
     if (token) {
       setIdentityToken(token);
 
-      window.history.replaceState({}, "", "/darts");
+      window.history.replaceState(
+        {},
+        "",
+        "/darts"
+      );
     } else {
-      console.log("No identity token found");
+      console.log(
+        "No identity token found"
+      );
     }
   }, []);
 
@@ -53,29 +74,69 @@ export default function DartsPage() {
   });
 
   function getRandomWind() {
-    return WINDS[Math.floor(Math.random() * WINDS.length)];
+    return WINDS[
+      Math.floor(
+        Math.random() *
+          WINDS.length
+      )
+    ];
   }
 
   function throwRandomDart() {
     if (throwsLeft <= 0) return;
+
     setKeyboardThrow(true);
-    setTimeout(() => setKeyboardThrow(false), 100);
+
+    setTimeout(
+      () =>
+        setKeyboardThrow(false),
+      100
+    );
   }
 
-  async function handleScore(points: number) {
+  async function handleScore(
+    points: number
+  ) {
     if (throwsLeft <= 0) return;
 
-    setScore((prev) => prev + points);
-    setHistory((prev) => [...prev, `Throw ${prev.length + 1} → ${points}`]);
-    setThrowsLeft((prev) => prev - 1);
+    setScore(
+      (prev) => prev + points
+    );
 
-    const newThrowsLeft = throwsLeft - 1;
-    const finalScore = score + points;
+    setHistory((prev) => [
+      ...prev,
+      `Throw ${
+        prev.length + 1
+      } → ${points}`,
+    ]);
 
-    if (newThrowsLeft <= 0 && identityToken) {
+    setThrowsLeft(
+      (prev) => prev - 1
+    );
+
+    const newThrowsLeft =
+      throwsLeft - 1;
+
+    const finalScore =
+      score + points;
+
+    if (
+      newThrowsLeft <= 0 &&
+      identityToken
+    ) {
       try {
-        const data = await playDartsRound(finalScore, identityToken || "");
-        await saveScore("darts", playerName, finalScore,);
+        await playDartsRound(
+          finalScore,
+          identityToken
+        );
+
+        await saveScore(
+          "darts",
+          playerName ||
+            "Anonymous",
+          finalScore,
+          
+        );
       } catch (error) {
         console.error(error);
       }
@@ -83,27 +144,47 @@ export default function DartsPage() {
 
     setWind(getRandomWind());
 
-    if (score + points >= 150) {
-      confetti({ particleCount: 200, spread: 120 });
+    if (
+      score + points >= 150
+    ) {
+      confetti({
+        particleCount: 200,
+        spread: 120,
+      });
     }
   }
 
   function resetRound() {
-    setPlays(plays - DARTS_COST);
+    setPlays(
+      plays - DARTS_COST
+    );
+
     resetDartsRound(
       setScore,
       setHistory,
       setThrowsLeft,
       setWind,
       setClearBoard,
-      getRandomWind,
+      getRandomWind
     );
   }
 
   return (
     <main className={styles.main}>
       <BackToLoopland />
-      <InfoBar score={score} throwsLeft={throwsLeft} wind={wind} />
+
+      <InfoBar
+        score={score}
+        throwsLeft={throwsLeft}
+        wind={wind}
+      />
+
+      <PlayerNameInput
+        playerName={playerName}
+        setPlayerName={
+          setPlayerName
+        }
+      />
 
       <DartBoard
         onScore={handleScore}
@@ -112,10 +193,14 @@ export default function DartsPage() {
         clearBoard={clearBoard}
         aimX={aimX}
         aimY={aimY}
-        keyboardThrow={keyboardThrow}
+        keyboardThrow={
+          keyboardThrow
+        }
       />
 
-      <ThrowButton onThrow={throwRandomDart} />
+      <ThrowButton
+        onThrow={throwRandomDart}
+      />
 
       <HowToPlay
         title="How To Play"
@@ -126,14 +211,21 @@ export default function DartsPage() {
           "Press SPACE or Throw button",
           "Reach 150 points to win ❤️",
           "180 points gives bonus ❤️",
+          "Write your alias for a chance to enter the leaderboard 🏆"
         ]}
       />
 
-      <PlayerNameInput playerName={playerName} setPlayerName={setPlayerName} />
+      <History
+        title="Throw History"
+        items={history}
+      />
 
-      <History title="Throw History" items={history} />
-
-      {throwsLeft <= 0 && <GameButton text="Play Again" onClick={resetRound} />}
+      {throwsLeft <= 0 && (
+        <GameButton
+          text="Play Again"
+          onClick={resetRound}
+        />
+      )}
     </main>
   );
 }
