@@ -5,17 +5,45 @@ import { useRouter } from "next/navigation";
 export default function GamePage() {
   const router = useRouter();
 
-  async function goToGame(game: string) {
-    const res = await fetch("/api/token", {
+ async function goToGame(
+  game: string
+) {
+
+  const accessKey = process.env.NEXT_PUBLIC_ACCESS_KEY;
+
+  console.log(
+    "ACCESS KEY:",
+    accessKey
+  );
+
+  const res = await fetch(
+    "/api/token",
+    {
       method: "POST",
-    });
 
-    const data = await res.json();
-    console.log(data);
-    const token = data.identity_token;
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
 
-    router.push(`/${game}?identity_token=${token}`);
-  }
+      body: JSON.stringify({
+        accessKey,
+      }),
+    }
+  );
+
+  const data =
+    await res.json();
+
+  console.log(data);
+
+  const token =
+    data.identity_token;
+
+  router.push(
+    `/${game}?identity_token=${token}`
+  );
+}
   return (
     <main>
       <h1>Games</h1>

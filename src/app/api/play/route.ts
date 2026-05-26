@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
+
 import { handleDarts } from "@/lib/games/darts";
 import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
 import { handleReactionRush } from "@/lib/games/reactionRush";
-import { createTransaction,payoutTransaction, } from "@/lib/centralBanken";
+
+import {
+  createTransaction,
+  payoutTransaction,
+} from "@/lib/centralBanken";
 
 export async function POST(
   request: Request
@@ -59,16 +64,17 @@ export async function POST(
       );
     }
 
+    // LOGS
     console.log("BODY:", body);
-
-    console.log(
-      "RESULT:",
-      result
-    );
 
     console.log(
       "IDENTITY TOKEN:",
       body.identityToken
+    );
+
+    console.log(
+      "GAME RESULT:",
+      result
     );
 
     // CREATE TRANSACTION
@@ -83,11 +89,13 @@ export async function POST(
       transaction
     );
 
-    // PAYOUT IF PLAYER WON
+    // PAYOUT
+    let payout = null;
+
     if (
       result.moneyWon > 0
     ) {
-      const payout =
+      payout =
         await payoutTransaction(
           transaction.transaction_id,
           result.moneyWon
@@ -103,6 +111,7 @@ export async function POST(
       success: true,
       result,
       transaction,
+      payout,
     });
   } catch (error) {
     console.error(

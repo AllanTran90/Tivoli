@@ -1,12 +1,8 @@
 "use client";
 
 import confetti from "canvas-confetti";
-import {
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
-
+import { useEffect, useState, useCallback, } from "react";
+import BackToLoopland from "@/components/BackToLoopland";
 import HowToPlay from "@/components/HowToPlay";
 import Module from "@/app/reactionRush/reactionRush.module.css";
 import { useWallet } from "@/context/WalletContext";
@@ -143,6 +139,9 @@ export default function ReactionRushPage() {
 
   return (
     <main>
+
+      <BackToLoopland />
+      
       <div className={Module.container}>
         <div
           className={

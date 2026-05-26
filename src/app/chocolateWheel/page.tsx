@@ -8,6 +8,7 @@ import { useWallet } from "@/context/WalletContext";
 import HowToPlay from "@/components/HowToPlay";
 import GameButton from "@/components/GameButton";
 import triggerWinConfetti from "@/lib/confetti";
+import BackToLoopland from "@/components/BackToLoopland";
 
 export default function ChocolateWheel() {
   const [result, setResult] =
@@ -116,6 +117,7 @@ export default function ChocolateWheel() {
   }
 
   return (
+
   <div className={styles.container}>
     <h1>Chocolate Wheel</h1>
 
@@ -131,6 +133,7 @@ export default function ChocolateWheel() {
             />
           </div>
         </div>
+        <BackToLoopland />
 
         <div className={styles.rightPanel}>
           <HowToPlay

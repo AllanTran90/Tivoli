@@ -15,6 +15,7 @@ import styles from "./darts.module.css";
 import InfoBar from "@/components/darts/Infobar";
 import HowToPlay from "@/components/HowToPlay";
 import { saveScore } from "@/lib/leaderboard";
+import BackToLoopland from "@/components/BackToLoopland";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -96,6 +97,7 @@ export default function DartsPage() {
 
   return (
     <main className={styles.main}>
+      <BackToLoopland />
       <InfoBar score={score} throwsLeft={throwsLeft} wind={wind} />
 
       <DartBoard

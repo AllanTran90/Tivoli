@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import Link from "next/link"
+import Link from "next/link";
 import { useWallet } from "@/context/WalletContext";
 
 export default function Navbar() {
-    const { plays } = useWallet();
+  const { plays } = useWallet();
 
- return (
+  return (
     <nav
       style={{
         display: "flex",
-        justifyContent: "space-between",
-        padding: "1rem",
+        justifyContent: "center",
+        gap: "2rem",
       }}
     >
       <div
@@ -20,7 +20,6 @@ export default function Navbar() {
           gap: "1rem",
         }}
       >
-
         <Link href="/">Home</Link>
         <Link href="/games">Games</Link>
         <Link href="/wallet">Wallet</Link>
@@ -31,4 +30,3 @@ export default function Navbar() {
     </nav>
   );
 }
-
