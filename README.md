@@ -36,6 +36,7 @@ Created by Allan Tran & Alex as part of the WU25 web development course.
 - TypeScript
 - CSS Modules
 - Canvas API
+- Supabase
 - Vercel Deployment
 
 ---
@@ -50,6 +51,7 @@ Created by Allan Tran & Alex as part of the WU25 web development course.
 - Leaderboard system
 - Responsive UI
 - Reusable components
+- Multi-game leaderboard with alias system
 
 ---
 
@@ -70,13 +72,50 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/AllanTran90/Tivoli
+```
 
-install dependencies:
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Run development server:
+
+```bash
 npm run dev
 ```
-Open http://localhost:3000 in your browser to see the app.
+
+Open:
+
+```txt
+http://localhost:3000
+```
+
+in your browser to see the app.
 
 ---
+
+# Authors 👨‍💻
+
+- Allan Tran  
+  GitHub: https://github.com/AllanTran90
+
+- Alex
+  GitHub: 
+
+# Deployment 🌍
+
+Deployed with Vercel.
+
+# Future Improvements 
+
+- Sound effects
+- Multiplayer support
+- More Tivoli games
+- Player profiles
+- Global rankings
+
+# License 
+
+This project is licensed under the MIT License.
