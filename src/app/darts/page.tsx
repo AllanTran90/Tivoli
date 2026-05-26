@@ -32,14 +32,22 @@ export default function DartsPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("identity_token");
-    console.log("TOKEN:", token);
+    console.log("TOKEN FROM URL:", token);
 
-    if (token && token !== "undefined") {
-      setIdentityToken(token);
-    } else {
-      console.error("No identity token found");
-    }
-  }, []);
+     if (token) {
+    setIdentityToken(token);
+
+    window.history.replaceState(
+      {},
+      "",
+      "/darts"
+    );
+  } else {
+    console.log(
+      "No identity token found"
+    );
+  }
+}, []);
 
   useKeyboardAim({
     setAimX,
