@@ -29,9 +29,15 @@ export default function DartsPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("identity_token");
-    setIdentityToken(token);
+const token = params.get("identity_token");
+
+if (token && token !== "undefined") {
+  setIdentityToken(token);
+} else {
+  setIdentityToken("user");
+}
   }, []);
+
 
   useKeyboardAim({
     setAimX,
