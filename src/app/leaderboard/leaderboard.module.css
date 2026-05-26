@@ -1,0 +1,46 @@
+.main {
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 1rem;
+  border-radius: 12px;
+
+  font-weight: bold;
+}
+
+.gold {
+  background: gold;
+  color: black;
+}
+
+.silver {
+  background: silver;
+  color: black;
+}
+
+.bronze {
+  background: #cd7f32;
+  color: black;
+}
+
+.default {
+  background: #222;
+  color: white;
+}

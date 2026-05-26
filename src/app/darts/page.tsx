@@ -14,6 +14,7 @@ import { useKeyboardAim } from "@/lib/darts/useKeyboardAim";
 import styles from "./darts.module.css";
 import InfoBar from "@/components/darts/Infobar";
 import HowToPlay from "@/components/HowToPlay";
+import { saveScore } from "@/lib/leaderboard";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -29,15 +30,15 @@ export default function DartsPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-const token = params.get("identity_token");
+    const token = params.get("identity_token");
+    console.log("TOKEN:", token);
 
-if (token && token !== "undefined") {
-  setIdentityToken(token);
-} else {
-  setIdentityToken("user");
-}
+    if (token && token !== "undefined") {
+      setIdentityToken(token);
+    } else {
+      console.error("No identity token found");
+    }
   }, []);
-
 
   useKeyboardAim({
     setAimX,
@@ -68,10 +69,7 @@ if (token && token !== "undefined") {
     if (newThrowsLeft <= 0) {
       try {
         const data = await playDartsRound(finalScore, identityToken || "");
-        if (data.result?.moneyWon) {
-          setPlays(plays + data.result.moneyWon);
-          setHistory((prev) => [...prev, `Won €${data.result.moneyWon}`]);
-        }
+        await saveScore("darts", "Player", finalScore);
       } catch (error) {
         console.error(error);
       }

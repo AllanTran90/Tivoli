@@ -1,31 +1,46 @@
-export default function LeaderboardPage() {
-  const players = [
-    {
-      name: "Allan",
-      coins: 150,
-    },
-    {
-      name: "Alex",
-      coins: 120,
-    },
-    {
-      name: "Rune",
-      coins: 80,
-    },
-  ];
+import styles from "./leaderboard.module.css";
+import { getLeaderboard } from "@/lib/leaderboard";
+
+export default async function LeaderboardPage() {
+  const players =
+    await getLeaderboard("darts");
 
   return (
-    <main>
-      <h1>🏆 Leaderboard</h1>
+    <main className={styles.main}>
+      <h1 className={styles.title}>
+        🏆 Darts Leaderboard
+      </h1>
 
-      {players.map((player, index) => (
-        <div key={player.name}>
-          <p>
-            {index + 1}. {player.name} —{" "}
-            {player.coins} Coins
-          </p>
-        </div>
-      ))}
+      <div className={styles.list}>
+        {players?.map((player, index) => {
+          let rankStyle = styles.default;
+
+          if (index === 0)
+            rankStyle = styles.gold;
+
+          if (index === 1)
+            rankStyle = styles.silver;
+
+          if (index === 2)
+            rankStyle = styles.bronze;
+
+          return (
+            <div
+              key={player.id}
+              className={`${styles.player} ${rankStyle}`}
+            >
+              <span>
+                {index + 1}.{" "}
+                {player.player}
+              </span>
+
+              <span>
+                🎯 {player.score}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </main>
   );
 }
