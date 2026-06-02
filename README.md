@@ -116,6 +116,20 @@ Deployed with Vercel.
 - Player profiles
 - Global rankings
 
+---
+
+# Links
+
+## Repository
+
+https://github.com/AllanTran90/Tivoli
+
+## Deploment
+
+https://tivoli-three.vercel.app
+
+---
+
 # License 
 
 This project is licensed under the MIT License.
