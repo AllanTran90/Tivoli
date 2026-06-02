@@ -66,6 +66,18 @@ Used endpoints:
 
 ---
 
+# Links
+
+## Repository
+
+https://github.com/AllanTran90/Tivoli
+
+## Deploment
+
+https://tivoli-three.vercel.app
+
+---
+
 # Installation 🚀
 
 Clone the repository:
@@ -86,36 +98,4 @@ Run development server:
 npm run dev
 ```
 
-Open:
-
-```txt
-http://localhost:3000
-```
-
-in your browser to see the app.
-
 ---
-
-# Authors 👨‍💻
-
-- Allan Tran  
-  GitHub: https://github.com/AllanTran90
-
-- Alex
-  GitHub: 
-
-# Deployment 🌍
-
-Deployed with Vercel.
-
-# Future Improvements 
-
-- Sound effects
-- Multiplayer support
-- More Tivoli games
-- Player profiles
-- Global rankings
-
-# License 
-
-This project is licensed under the MIT License.
