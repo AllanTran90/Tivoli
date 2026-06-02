@@ -64,6 +64,18 @@ Used endpoints:
 
 ---
 
+# Links
+
+## Repository
+
+https://github.com/AllanTran90/Tivoli
+
+## Deploment
+
+https://tivoli-three.vercel.app
+
+---
+
 # Installation 🚀
 
 Clone the repository:
