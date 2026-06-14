@@ -47,11 +47,6 @@ export default function DartsPage() {
     const token =
       params.get("identity_token");
 
-    console.log(
-      "TOKEN FROM URL:",
-      token
-    );
-
     if (token) {
       setIdentityToken(token);
 
@@ -134,8 +129,7 @@ export default function DartsPage() {
           "darts",
           playerName ||
             "Anonymous",
-          finalScore,
-          
+          finalScore
         );
       } catch (error) {
         console.error(error);

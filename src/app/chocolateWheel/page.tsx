@@ -10,6 +10,7 @@ import GameButton from "@/components/GameButton";
 import triggerWinConfetti from "@/lib/confetti";
 import BackToLoopland from "@/components/BackToLoopland";
 import PlayerNameInput from "../leaderboard/PlayerNameInput";
+import { playChocolateWheelRound } from "@/lib/chocolateWheel/playChocolateWheelRound";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
@@ -59,6 +60,10 @@ export default function ChocolateWheel() {
       setResult(random);
 
       const updatedLives = plays - 1;
+
+      if (identityToken) {
+        await playChocolateWheelRound(selectedNumber!, random, 3, identityToken);
+      }
 
       if (random === selectedNumber) {
         triggerWinConfetti();

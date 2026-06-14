@@ -13,6 +13,7 @@ import useSpaceKey from "@/hooks/useSpaceKey";
 import { getReactionReward } from "@/lib/reactionRush/gameLogic";
 import PlayerNameInput from "../leaderboard/PlayerNameInput";
 import { saveScore } from "@/lib/leaderboard";
+import { playReactionRushRound } from "@/lib/reactionRush/playReactionRushRound";
 
 export default function ReactionRushPage() {
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -46,8 +47,6 @@ export default function ReactionRushPage() {
 
     const token = params.get("identity_token");
 
-    console.log(token);
-
     setIdentityToken(token);
   }, []);
 
@@ -80,6 +79,10 @@ export default function ReactionRushPage() {
     const result = getReactionReward(currentTime, bet);
 
     await saveScore("reactionRush", playerName || "Anonymous", Number(Math.floor(currentTime)));
+
+    if (identityToken) {
+      await playReactionRushRound(currentTime, bet, identityToken);
+    }
 
     await setPlays(plays + result.reward);
 
