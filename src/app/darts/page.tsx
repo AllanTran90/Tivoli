@@ -17,6 +17,7 @@ import HowToPlay from "@/components/HowToPlay";
 import { saveScore } from "@/lib/leaderboard";
 import BackToLoopland from "@/components/BackToLoopland";
 import PlayerNameInput from "../leaderboard/PlayerNameInput";
+import { resolveIdentityToken } from "@/lib/loopland";
 
 export default function DartsPage() {
   const [score, setScore] = useState(0);
@@ -38,6 +39,9 @@ export default function DartsPage() {
   const [playerName, setPlayerName] =
     useState("");
 
+  const [userName, setUserName] =
+    useState<string | null>(null);
+
   useEffect(() => {
     const params =
       new URLSearchParams(
@@ -55,10 +59,10 @@ export default function DartsPage() {
         "",
         "/darts"
       );
-    } else {
-      console.log(
-        "No identity token found"
-      );
+
+      resolveIdentityToken(token).then((data) => {
+        if (data) setUserName(data.user.name);
+      });
     }
   }, []);
 
@@ -115,20 +119,27 @@ export default function DartsPage() {
     const finalScore =
       score + points;
 
-    if (
-      newThrowsLeft <= 0 &&
-      identityToken
-    ) {
-      try {
-        await playDartsRound(
-          finalScore,
-          identityToken
-        );
+    if (newThrowsLeft <= 0) {
+      const heartsWon =
+        finalScore >= 150 ? 10 :
+        finalScore >= 100 ? 5 : 0;
 
+      if (identityToken) {
+        try {
+          await playDartsRound(finalScore, identityToken);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      if (heartsWon > 0) {
+        setPlays(plays - DARTS_COST + heartsWon);
+      }
+
+      try {
         await saveScore(
           "darts",
-          playerName ||
-            "Anonymous",
+          playerName || "Anonymous",
           finalScore
         );
       } catch (error) {
@@ -166,6 +177,8 @@ export default function DartsPage() {
   return (
     <main className={styles.main}>
       <BackToLoopland />
+
+      {userName && <p>Välkommen, {userName}! 👋</p>}
 
       <InfoBar
         score={score}

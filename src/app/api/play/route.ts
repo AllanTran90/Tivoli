@@ -64,46 +64,20 @@ export async function POST(
       );
     }
 
-    // LOGS
-    console.log("BODY:", body);
-
-    console.log(
-      "IDENTITY TOKEN:",
-      body.identityToken
-    );
-
-    console.log(
-      "GAME RESULT:",
-      result
-    );
-
-    // CREATE TRANSACTION
+    // CREATE TRANSACTION (deducts bet from user)
     const transaction =
       await createTransaction(
         body.identityToken,
         body.amount
       );
 
-    console.log(
-      "TRANSACTION:",
-      transaction
-    );
-
-    // PAYOUT
+    // PAYOUT (bet + net reward so user gets back stake + winnings)
     let payout = null;
 
-    if (
-      result.moneyWon > 0
-    ) {
-      payout =
-        await payoutTransaction(
-          transaction.transaction_id,
-          result.moneyWon
-        );
-
-      console.log(
-        "PAYOUT:",
-        payout
+    if (result.moneyWon > 0) {
+      payout = await payoutTransaction(
+        transaction.transaction_id,
+        body.amount + result.moneyWon
       );
     }
 

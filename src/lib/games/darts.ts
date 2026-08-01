@@ -4,14 +4,14 @@ export function handleDarts(
   if (score >= 150) {
     return {
       reward: "x3",
-      moneyWon: 30,
+      moneyWon: 10,
     };
   }
 
   if (score >= 100) {
     return {
       reward: "x2",
-      moneyWon: 20,
+      moneyWon: 5,
     };
   }
 

@@ -8,7 +8,7 @@ export function handleChocolateWheel(
   ) {
     return {
       reward: `x${multiplier}`,
-      moneyWon: multiplier * 2,
+      moneyWon: 2,
     };
   }
 

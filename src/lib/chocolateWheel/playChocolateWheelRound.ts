@@ -19,7 +19,7 @@ export async function playChocolateWheelRound(
         selectedNumber,
         resultNumber,
         multiplier,
-        amount: multiplier,
+        amount: 1,
         identityToken:
           identityToken || "",
       }),

@@ -11,6 +11,7 @@ import triggerWinConfetti from "@/lib/confetti";
 import BackToLoopland from "@/components/BackToLoopland";
 import PlayerNameInput from "../leaderboard/PlayerNameInput";
 import { playChocolateWheelRound } from "@/lib/chocolateWheel/playChocolateWheelRound";
+import { resolveIdentityToken } from "@/lib/loopland";
 
 export default function ChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
@@ -20,17 +21,27 @@ export default function ChocolateWheel() {
   const [history, setHistory] = useState<string[]>([]);
   const [identityToken, setIdentityToken] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState("");
+  const [userName, setUserName] = useState<string | null>(null);
+  const [bankError, setBankError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-
     const token = params.get("identity_token");
 
-    setIdentityToken(token);
+    if (token) {
+      setIdentityToken(token);
+      window.history.replaceState({}, "", "/chocolateWheel");
+
+      resolveIdentityToken(token).then((data) => {
+        if (data) setUserName(data.user.name);
+      });
+    }
   }, []);
 
   async function spin() {
     if (plays <= 0 || selectedNumber === null) return;
+
+    setBankError(null);
 
     const values = [1, 2, 3, 4, 5, 6];
 
@@ -62,7 +73,11 @@ export default function ChocolateWheel() {
       const updatedLives = plays - 1;
 
       if (identityToken) {
-        await playChocolateWheelRound(selectedNumber!, random, 3, identityToken);
+        const apiResult = await playChocolateWheelRound(selectedNumber!, random, 3, identityToken);
+
+        if (!apiResult?.success) {
+          setBankError(apiResult?.error ?? "Betalning misslyckades");
+        }
       }
 
       if (random === selectedNumber) {
@@ -82,6 +97,10 @@ export default function ChocolateWheel() {
   return (
     <div className={styles.container}>
       <h1>Chocolate Wheel</h1>
+
+      {userName && <p>Välkommen, {userName}! 👋</p>}
+
+      {bankError && <p style={{ color: "red" }}>{bankError}</p>}
 
       <PlayerNameInput playerName={playerName} setPlayerName={setPlayerName} />
 

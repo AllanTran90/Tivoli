@@ -14,6 +14,7 @@ import { getReactionReward } from "@/lib/reactionRush/gameLogic";
 import PlayerNameInput from "../leaderboard/PlayerNameInput";
 import { saveScore } from "@/lib/leaderboard";
 import { playReactionRushRound } from "@/lib/reactionRush/playReactionRushRound";
+import { resolveIdentityToken } from "@/lib/loopland";
 
 export default function ReactionRushPage() {
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -25,6 +26,8 @@ export default function ReactionRushPage() {
   const [history, setHistory] = useState<string[]>([]);
   const [identityToken, setIdentityToken] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState("");
+  const [userName, setUserName] = useState<string | null>(null);
+  const [bankError, setBankError] = useState<string | null>(null);
 
   // TIMER
   useEffect(() => {
@@ -44,10 +47,16 @@ export default function ReactionRushPage() {
   // GET TOKEN FROM URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-
     const token = params.get("identity_token");
 
-    setIdentityToken(token);
+    if (token) {
+      setIdentityToken(token);
+      window.history.replaceState({}, "", "/reactionRush");
+
+      resolveIdentityToken(token).then((data) => {
+        if (data) setUserName(data.user.name);
+      });
+    }
   }, []);
 
   // START GAME
@@ -81,7 +90,11 @@ export default function ReactionRushPage() {
     await saveScore("reactionRush", playerName || "Anonymous", Number(Math.floor(currentTime)));
 
     if (identityToken) {
-      await playReactionRushRound(currentTime, bet, identityToken);
+      const apiResult = await playReactionRushRound(currentTime, bet, identityToken);
+
+      if (!apiResult?.success) {
+        setBankError(apiResult?.error ?? "Betalning misslyckades");
+      }
     }
 
     await setPlays(plays + result.reward);
@@ -116,6 +129,10 @@ export default function ReactionRushPage() {
       <div className={Module.container}>
         <div className={Module["center-panel"]}>
           <h1>⏱️ Reaction Rush</h1>
+
+          {userName && <p>Välkommen, {userName}! 👋</p>}
+
+          {bankError && <p style={{ color: "red" }}>{bankError}</p>}
 
           <p>Press SPACE to play</p>
 

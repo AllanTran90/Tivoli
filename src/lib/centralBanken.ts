@@ -1,11 +1,8 @@
-  const CENTRALBANK_API =
-    process.env.CENTRALBANK_API_URL;
+const CENTRALBANK_API =
+  process.env.CENTRALBANK_API_URL;
 
-  const CENTRALBANK_API_KEY =
-    process.env.CENTRALBANK_API_KEY;
-
-  export const REACTION_RUSH_API =
-    process.env.REACTION_RUSH_API_KEY;
+const CENTRALBANK_API_KEY =
+  process.env.CENTRALBANK_API_KEY;
 
   export async function createTransaction(
     identityToken: string,
