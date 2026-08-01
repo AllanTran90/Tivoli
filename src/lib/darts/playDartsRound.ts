@@ -1,22 +1,14 @@
-export async function playDartsRound(score: number, identityToken: string) {
+import type { PlayApiResponse } from "@/types/api";
 
-    console.log(
-    "IDENTITY TOKEN:",
-    identityToken
-  );
-
-    const response = await fetch("/api/play", {
+export async function playDartsRound(
+  score: number,
+  identityToken: string
+): Promise<PlayApiResponse> {
+  const response = await fetch("/api/play", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-        game: "darts",
-        score,
-        amount: 3,
-        identityToken,
-      }),
-
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ game: "darts", score, amount: 3, identityToken }),
   });
-return response.json();
+
+  return response.json() as Promise<PlayApiResponse>;
 }

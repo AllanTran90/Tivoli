@@ -1,3 +1,5 @@
+import type { PlayApiResponse } from "@/types/api";
+
 type PlayGameProps = {
   game: string;
   amount: number;
@@ -11,21 +13,12 @@ type PlayGameProps = {
 
 export async function playGame(
   gameData: PlayGameProps
-) {
-  const response = await fetch(
-    "/api/play",
-    {
-      method: "POST",
+): Promise<PlayApiResponse> {
+  const response = await fetch("/api/play", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(gameData),
+  });
 
-      headers: {
-        "Content-Type":
-          "application/json",
-      },
-
-      body: JSON.stringify(
-        gameData
-      ),
-    }
-  );
-  return response.json();
+  return response.json() as Promise<PlayApiResponse>;
 }

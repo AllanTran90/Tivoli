@@ -1,4 +1,6 @@
-export function handleReactionRush(reactionTime: number) {
+import type { GameResult } from "@/types/api";
+
+export function handleReactionRush(reactionTime: number): GameResult {
   const diff = Math.abs(10 - reactionTime);
 
   if (reactionTime.toFixed(2) === "10.00") {

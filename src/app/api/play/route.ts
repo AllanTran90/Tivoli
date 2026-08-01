@@ -3,73 +3,41 @@ import { NextResponse } from "next/server";
 import { handleDarts } from "@/lib/games/darts";
 import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
 import { handleReactionRush } from "@/lib/games/reactionRush";
+import { createTransaction, payoutTransaction } from "@/lib/centralBanken";
+import type { GameResult } from "@/types/api";
 
-import {
-  createTransaction,
-  payoutTransaction,
-} from "@/lib/centralBanken";
-
-export async function POST(
-  request: Request
-) {
+export async function POST(request: Request): Promise<NextResponse> {
   try {
-    const body = await request.json();
-    console.log("BODY:", body);
+    const body = await request.json() as {
+      game: string;
+      amount: number;
+      identityToken: string;
+      score?: number;
+      reactionTime?: number;
+      selectedNumber?: number;
+      resultNumber?: number;
+      multiplier?: number;
+    };
 
     const { game } = body;
+    let result: GameResult;
 
-    let result;
-
-    // DARTS
     if (game === "darts") {
-      result = handleDarts(
-        body.score
+      result = handleDarts(body.score ?? 0);
+    } else if (game === "chocolate-wheel") {
+      result = handleChocolateWheel(
+        body.selectedNumber ?? 0,
+        body.resultNumber ?? 0,
+        body.multiplier ?? 1
       );
-    }
-
-    // CHOCOLATE WHEEL
-    else if (
-      game ===
-      "chocolate-wheel"
-    ) {
-      result =
-        handleChocolateWheel(
-          body.selectedNumber,
-          body.resultNumber,
-          body.multiplier
-        );
-    }
-
-    // REACTION RUSH
-    else if (
-      game ===
-      "reaction-rush"
-    ) {
-      result =
-        handleReactionRush(
-          body.reactionTime
-        );
-    }
-
-    // UNKNOWN GAME
-    else {
-      return NextResponse.json(
-        {
-          error:
-            "Unknown game",
-        },
-        {
-          status: 400,
-        }
-      );
+    } else if (game === "reaction-rush") {
+      result = handleReactionRush(body.reactionTime ?? 0);
+    } else {
+      return NextResponse.json({ error: "Unknown game" }, { status: 400 });
     }
 
     // CREATE TRANSACTION (deducts bet from user)
-    const transaction =
-      await createTransaction(
-        body.identityToken,
-        body.amount
-      );
+    const transaction = await createTransaction(body.identityToken, body.amount);
 
     // PAYOUT (bet + net reward so user gets back stake + winnings)
     let payout = null;
@@ -81,30 +49,10 @@ export async function POST(
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      result,
-      transaction,
-      payout,
-    });
+    return NextResponse.json({ success: true, result, transaction, payout });
   } catch (error) {
-    console.error(
-      "API ERROR:",
-      error
-    );
+    const message = error instanceof Error ? error.message : "Unknown error";
 
-    return NextResponse.json(
-      {
-        success: false,
-
-        error:
-          error instanceof Error
-            ? error.message
-            : "Unknown error",
-      },
-      {
-        status: 500,
-      }
-    );
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
