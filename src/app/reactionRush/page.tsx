@@ -4,30 +4,29 @@ import confetti from "canvas-confetti";
 import { useEffect, useState, useCallback } from "react";
 import BackToLoopland from "@/components/BackToLoopland";
 import HowToPlay from "@/components/HowToPlay";
+import History from "@/components/History";
+import GameSessionBar from "@/components/GameSessionBar";
 import Module from "@/app/reactionRush/reactionRush.module.css";
 import { useWallet } from "@/context/WalletContext";
 import BetInput from "../chocolateWheel/components/BetInput";
 import GameButton from "@/components/GameButton";
-import History from "@/components/History";
 import useSpaceKey from "@/hooks/useSpaceKey";
+import { useGameSession } from "@/hooks/useGameSession";
 import { getReactionReward } from "@/lib/reactionRush/gameLogic";
-import PlayerNameInput from "../leaderboard/PlayerNameInput";
 import { saveScore } from "@/lib/leaderboard";
-import { playReactionRushRound } from "@/lib/reactionRush/playReactionRushRound";
-import { resolveIdentityToken } from "@/lib/loopland";
+import { playGame } from "@/lib/playGame";
 
 export default function ReactionRushPage() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [time, setTime] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const { plays, setPlays } = useWallet();
   const [bet, setBet] = useState(1);
   const [history, setHistory] = useState<string[]>([]);
-  const [identityToken, setIdentityToken] = useState<string | null>(null);
-  const [playerName, setPlayerName] = useState("");
-  const [userName, setUserName] = useState<string | null>(null);
-  const [bankError, setBankError] = useState<string | null>(null);
+
+  const { plays, setPlays } = useWallet();
+  const { identityToken, userName, playerName, setPlayerName, bankError, setBankError } =
+    useGameSession("/reactionRush");
 
   // TIMER
   useEffect(() => {
@@ -35,32 +34,14 @@ export default function ReactionRushPage() {
 
     if (isPlaying && startTime) {
       interval = setInterval(() => {
-        const now = Date.now();
-
-        setCurrentTime((now - startTime) / 1000);
+        setCurrentTime((Date.now() - startTime) / 1000);
       }, 10);
     }
 
     return () => clearInterval(interval);
   }, [isPlaying, startTime]);
 
-  // GET TOKEN FROM URL
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("identity_token");
-
-    if (token) {
-      setIdentityToken(token);
-      window.history.replaceState({}, "", "/reactionRush");
-
-      resolveIdentityToken(token).then((data) => {
-        if (data) setUserName(data.user.name);
-      });
-    }
-  }, []);
-
-  // START GAME
-  function startGame() {
+  function startGame(): void {
     if (bet > plays) return;
 
     setTime(null);
@@ -69,47 +50,42 @@ export default function ReactionRushPage() {
     setIsPlaying(true);
   }
 
-  // STOP GAME
-  async function stopGame() {
+  async function stopGame(): Promise<void> {
     if (!startTime) return;
 
     const roundedTime = currentTime.toFixed(2);
-
     setTime(currentTime);
     setIsPlaying(false);
 
     const difference = Math.abs(10 - currentTime).toFixed(2);
-
-    setHistory((prev) => [
-      `⏱️ ${roundedTime}s | Diff: ${difference}s`,
-      ...prev,
-    ]);
+    setHistory((prev) => [`⏱️ ${roundedTime}s | Diff: ${difference}s`, ...prev]);
 
     const result = getReactionReward(currentTime, bet);
 
-    await saveScore("reactionRush", playerName || "Anonymous", Number(Math.floor(currentTime)));
+    await saveScore("reactionRush", playerName || "Anonymous", Math.floor(currentTime));
 
     if (identityToken) {
-      const apiResult = await playReactionRushRound(currentTime, bet, identityToken);
+      const apiResult = await playGame({
+        game: "reaction-rush",
+        reactionTime: currentTime,
+        amount: bet,
+        identityToken,
+      });
 
-      if (!apiResult?.success) {
-        setBankError(apiResult?.error ?? "Betalning misslyckades");
+      if (!apiResult.success) {
+        setBankError(apiResult.error ?? "Betalning misslyckades");
       }
     }
 
     await setPlays(plays + result.reward);
 
     if (result.confetti) {
-      confetti({
-        particleCount: 150,
-        spread: 120,
-      });
+      confetti({ particleCount: 150, spread: 120 });
     }
 
     setHistory((prev) => [result.message, ...prev]);
   }
 
-  // SPACE KEY CONTROLS
   const handleGame = useCallback(async () => {
     if (isPlaying) {
       await stopGame();
@@ -118,9 +94,7 @@ export default function ReactionRushPage() {
     }
   }, [isPlaying, currentTime]);
 
-  useSpaceKey({
-    action: handleGame,
-  });
+  useSpaceKey({ action: handleGame });
 
   return (
     <main>
@@ -130,9 +104,12 @@ export default function ReactionRushPage() {
         <div className={Module["center-panel"]}>
           <h1>⏱️ Reaction Rush</h1>
 
-          {userName && <p>Välkommen, {userName}! 👋</p>}
-
-          {bankError && <p style={{ color: "red" }}>{bankError}</p>}
+          <GameSessionBar
+            userName={userName}
+            bankError={bankError}
+            playerName={playerName}
+            setPlayerName={setPlayerName}
+          />
 
           <p>Press SPACE to play</p>
 
@@ -146,7 +123,7 @@ export default function ReactionRushPage() {
               "Press SPACE or Stop at exactly 10.00",
               "10.00 gives +3 ❤️",
               "Within 0.1 gives +1 ❤️",
-              "Write your alias for a chance to enter the leaderboard 🏆"
+              "Write your alias for a chance to enter the leaderboard 🏆",
             ]}
           />
 
@@ -155,11 +132,6 @@ export default function ReactionRushPage() {
           <h2>{currentTime.toFixed(2)}</h2>
 
           <BetInput bet={bet} balance={plays} onChange={setBet} />
-
-          <PlayerNameInput
-            playerName={playerName}
-            setPlayerName={setPlayerName}
-          />
 
           <GameButton text={isPlaying ? "Stop" : "Play"} onClick={handleGame} />
 
@@ -176,9 +148,7 @@ export default function ReactionRushPage() {
           {time !== null && (
             <div>
               <p>Your Time: {time.toFixed(2)}</p>
-
               <p>Difference: {Math.abs(10 - time).toFixed(2)}</p>
-
               <History items={history} />
             </div>
           )}
