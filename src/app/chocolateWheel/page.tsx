@@ -20,7 +20,7 @@ const HOW_TO_STEPS = [
 ];
 
 export default function ChocolateWheel() {
-  const { result, rotation, selectedNumber, setSelectedNumber, history, spin, userName, bankError, playerName, setPlayerName } = useChocolateWheel();
+  const { result, rotation, selectedNumber, setSelectedNumber, history, spin, spinning, userName, bankError, playerName, setPlayerName } = useChocolateWheel();
 
   return (
     <div className={styles.container}>
@@ -45,7 +45,7 @@ export default function ChocolateWheel() {
           <Wheel rotation={rotation} />
         </div>
 
-        <GameButton text="SPIN" onClick={spin} disabled={selectedNumber === null} className={styles.spin} />
+        <GameButton text="SPIN" onClick={spin} disabled={selectedNumber === null || spinning} className={styles.spin} />
 
         {result !== null && (
           <p className={result === selectedNumber ? styles.win : styles.lose}>

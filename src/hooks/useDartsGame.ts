@@ -42,12 +42,19 @@ export function useDartsGame() {
     setThrowsLeft((prev) => prev - 1);
 
     if (newThrowsLeft <= 0) {
-      const heartsWon = newScore >= 150 ? 10 : newScore >= 100 ? 5 : 0;
       if (session.identityToken) {
         const apiResult = await playGame({ game: "darts", score: newScore, amount: DARTS_COST, identityToken: session.identityToken });
-        if (!apiResult.success) session.setBankError(apiResult.error ?? "Betalning misslyckades");
+        if (apiResult.success && apiResult.transaction) {
+          const deducted = apiResult.transaction.amount;
+          const credited = apiResult.payout?.amount ?? 0;
+          await setPlays(plays + credited - deducted);
+        } else {
+          session.setBankError(apiResult.error ?? "Betalning misslyckades");
+        }
+      } else {
+        const heartsWon = newScore >= 150 ? 10 : newScore >= 100 ? 5 : 0;
+        await setPlays(plays - DARTS_COST + heartsWon);
       }
-      if (heartsWon > 0) setPlays(plays - DARTS_COST + heartsWon);
       await saveScore("darts", session.playerName || "Anonymous", newScore);
     }
 
@@ -56,7 +63,7 @@ export function useDartsGame() {
   }
 
   function resetRound(): void {
-    setPlays(plays - DARTS_COST);
+    session.setBankError(null);
     resetDartsRound(setScore, setHistory, setThrowsLeft, setWind, setClearBoard, getRandomWind);
   }
 

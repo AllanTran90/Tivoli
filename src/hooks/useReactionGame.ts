@@ -39,19 +39,29 @@ export function useReactionGame() {
     setIsPlaying(false);
     const difference = Math.abs(10 - currentTime).toFixed(2);
     setHistory((prev) => [`⏱️ ${currentTime.toFixed(2)}s | Diff: ${difference}s`, ...prev]);
+
     const result = getReactionReward(currentTime, bet);
     await saveScore("reactionRush", session.playerName || "Anonymous", Math.floor(currentTime));
+
     if (session.identityToken) {
       const apiResult = await playGame({ game: "reaction-rush", reactionTime: currentTime, amount: bet, identityToken: session.identityToken });
-      if (!apiResult.success) session.setBankError(apiResult.error ?? "Betalning misslyckades");
+      if (apiResult.success && apiResult.transaction) {
+        const deducted = apiResult.transaction.amount;
+        const credited = apiResult.payout?.amount ?? 0;
+        await setPlays(plays + credited - deducted);
+      } else {
+        session.setBankError(apiResult.error ?? "Betalning misslyckades");
+      }
+    } else {
+      await setPlays(plays + result.reward);
     }
-    await setPlays(plays + result.reward);
+
     if (result.confetti) confetti({ particleCount: 150, spread: 120 });
     setHistory((prev) => [result.message, ...prev]);
   }
 
   function reset(): void {
-    setTime(0);
+    setTime(null);
     setCurrentTime(0);
     setStartTime(null);
     setIsPlaying(false);

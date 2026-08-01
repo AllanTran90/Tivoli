@@ -46,6 +46,7 @@ export interface PlayApiResponse {
   result?: GameResult;
   transaction?: TransactionResponse;
   payout?: PayoutResponse | null;
+  resultNumber?: number;
   error?: string;
 }
 
