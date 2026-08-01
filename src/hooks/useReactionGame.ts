@@ -41,7 +41,7 @@ export function useReactionGame() {
     setHistory((prev) => [`⏱️ ${currentTime.toFixed(2)}s | Diff: ${difference}s`, ...prev]);
 
     const result = getReactionReward(currentTime, bet);
-    await saveScore("reactionRush", session.playerName || "Anonymous", Math.floor(currentTime));
+    await saveScore("reactionRush", session.playerName || "Anonymous", parseFloat(currentTime.toFixed(2)));
 
     if (session.identityToken) {
       const apiResult = await playGame({ game: "reaction-rush", reactionTime: currentTime, amount: bet, identityToken: session.identityToken });
