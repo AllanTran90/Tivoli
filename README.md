@@ -66,6 +66,18 @@ Used endpoints:
 
 ---
 
+# Links
+
+## Repository
+
+https://github.com/AllanTran90/Tivoli
+
+## Deploment
+
+https://tivoli-three.vercel.app
+
+---
+
 # Installation 🚀
 
 Clone the repository:
@@ -85,14 +97,6 @@ Run development server:
 ```bash
 npm run dev
 ```
-
-Open:
-
-```txt
-http://localhost:3000
-```
-
-in your browser to see the app.
 
 ---
 
@@ -115,18 +119,6 @@ Deployed with Vercel.
 - More Tivoli games
 - Player profiles
 - Global rankings
-
----
-
-# Links
-
-## Repository
-
-https://github.com/AllanTran90/Tivoli
-
-## Deploment
-
-https://tivoli-three.vercel.app
 
 ---
 

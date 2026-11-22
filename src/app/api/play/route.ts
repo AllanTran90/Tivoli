@@ -1,98 +1,53 @@
 import { NextResponse } from "next/server";
-
-import { handleDarts } from "@/lib/games/darts";
-import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
-import { handleReactionRush } from "@/lib/games/reactionRush";
-
 import { createTransaction, payoutTransaction } from "@/lib/centralBanken";
+import { resolveGame, payoutFor } from "@/lib/games/rules";
+import { getOrCreateGuestId, guestAccountId } from "@/lib/server/guest";
+import { playRound, InsufficientFundsError, BankUnavailableError } from "@/lib/server/tivoliBank";
+import type { PlayApiResponse } from "@/types/api";
+import { validatePlayRequest } from "./validate";
 
-export async function POST(request: Request) {
+function fail(error: string, status: number): NextResponse<PlayApiResponse> {
+  return NextResponse.json({ success: false, error }, { status });
+}
+
+export async function POST(request: Request): Promise<NextResponse<PlayApiResponse>> {
+  let rawBody: unknown;
   try {
-    const body = await request.json();
-    console.log("BODY:", body);
+    rawBody = await request.json();
+  } catch {
+    return fail("Invalid JSON body", 400);
+  }
 
-    const { game } = body;
+  const validation = validatePlayRequest(rawBody);
+  if (!validation.ok) return fail(validation.error, 400);
 
-    let result;
+  const { identityToken, ...input } = validation.data;
+  const round = resolveGame(input);
+  const { bet, result, resultNumber } = round;
+  const payoutAmount = payoutFor(round);
 
-    // DARTS
-    if (game === "darts") {
-      result = handleDarts(body.score);
+  // Spelare från Loopland: Loopland-Centralbanken hanterar pengarna.
+  if (identityToken) {
+    try {
+      const transaction = await createTransaction(identityToken, bet);
+      const payout =
+        payoutAmount > 0 ? await payoutTransaction(transaction.transaction_id, payoutAmount) : null;
+      return NextResponse.json({ success: true, bank: "loopland", result, resultNumber, transaction, payout });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      return fail(message, 502);
     }
+  }
 
-    // CHOCOLATE WHEEL
-    else if (game === "chocolate-wheel") {
-      result = handleChocolateWheel(
-        body.selectedNumber,
-        body.resultNumber,
-        body.multiplier,
-      );
-    }
-
-    // REACTION RUSH
-    else if (game === "reaction-rush") {
-      result = handleReactionRush(body.reactionTime);
-    }
-
-    // UNKNOWN GAME
-    else {
-      return NextResponse.json(
-        {
-          error: "Unknown game",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
-
-    // LOGS
-    console.log("BODY:");
-
-    console.log("IDENTITY TOKEN:", body.identityToken);
-
-    console.log("GAME RESULT:", result);
-
-    // CREATE TRANSACTION
-    const transaction = await createTransaction(
-      body.identityToken,
-      body.amount,
-    );
-
-    console.log("TRANSACTION:", transaction);
-
-    console.log("STAMP:", transaction.stamp);
-
-    // PAYOUT
-    let payout = null;
-
-    if (result.moneyWon > 0) {
-      payout = await payoutTransaction(
-        transaction.transaction_id,
-        result.moneyWon,
-      );
-
-      console.log("PAYOUT:", payout);
-    }
-
-    return NextResponse.json({
-      success: true,
-      result,
-      transaction,
-      payout,
-    });
+  // Gäster: Tivoli-banken (egen bank i Supabase).
+  try {
+    const accountId = guestAccountId(await getOrCreateGuestId());
+    const balance = await playRound(accountId, input.game, bet, payoutAmount);
+    return NextResponse.json({ success: true, bank: "tivoli", result, resultNumber, balance });
   } catch (error) {
-    console.error("API ERROR:", error);
-
-    return NextResponse.json(
-      {
-        success: false,
-
-        error: error instanceof Error ? error.message : "Unknown error",
-      },
-      {
-        status: 500,
-      },
-    );
+    if (error instanceof InsufficientFundsError) return fail("Not enough hearts", 402);
+    if (!(error instanceof BankUnavailableError)) console.error(error);
+    // Skicka aldrig interna databasfel till klienten.
+    return fail("The Tivoli bank is unavailable right now", 503);
   }
 }

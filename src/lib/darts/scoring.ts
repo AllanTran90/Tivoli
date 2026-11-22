@@ -10,92 +10,29 @@ import {
   DOUBLE_RING_OUTER_RADIUS,
   sectors,
 } from "./constants";
-
 import type { HitPosition } from "@/types/darts";
 
-export function calculateScore(hit: HitPosition) {
+function getSectorScore(dx: number, dy: number): number {
+  let angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+  if (angle < 0) angle += 360;
+  return sectors[Math.floor((angle + 9) / 18) % 20];
+}
+
+export function calculateScore(hit: HitPosition): number {
   const dx = hit.x - CENTER;
   const dy = hit.y - CENTER;
-
   const distance = Math.sqrt(dx * dx + dy * dy);
 
-  // Miss outside the doublering
-  if (distance > DOUBLE_RING_OUTER_RADIUS) {
-    return 0;
-  }
+  if (distance > DOUBLE_RING_OUTER_RADIUS) return 0;
+  if (distance <= BULLSEYE_RADIUS) return 50;
+  if (distance <= OUTER_BULL_RADIUS) return 25;
+  if (distance < INNER_SINGLE_RADIUS) return 0;
 
-  // Bullseye
-  if (distance <= BULLSEYE_RADIUS) {
-    return 50;
-  }
+  const sector = getSectorScore(dx, dy);
 
-  // Outer bull
-  if (distance <= OUTER_BULL_RADIUS) {
-    return 25;
-  }
-
-  const sectorScore = getSectorScore(dx, dy);
-
-  // black area outside the field
-  if (distance < INNER_SINGLE_RADIUS) {
-    return 0;
-  }
-
-
-function getSectorScore(dx: number, dy: number) {
-  let angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-  angle += 90;
-
-
-  if (angle < 0) {
-    angle += 360;
-  }
-
-  const sectorIndex = Math.floor(angle / 18);
-
-  return sectors[sectorIndex];
-}
-
-  // Triple ring
-  if (
-    distance >= TRIPLE_RING_INNER_RADIUS &&
-    distance <= TRIPLE_RING_OUTER_RADIUS
-  ) {
-    return sectorScore * 3;
-  }
-
-  // Double ring
-  if (
-    distance >= DOUBLE_RING_INNER_RADIUS &&
-    distance <= DOUBLE_RING_OUTER_RADIUS
-  ) {
-    return sectorScore * 2;
-  }
-
-  // Single areas
-  if (distance <= OUTER_SINGLE_RADIUS) {
-    return sectorScore;
-  }
-
-  // between single and double
-  if (distance < DOUBLE_RING_INNER_RADIUS) {
-    return sectorScore;
-  }
+  if (distance >= TRIPLE_RING_INNER_RADIUS && distance <= TRIPLE_RING_OUTER_RADIUS) return sector * 3;
+  if (distance >= DOUBLE_RING_INNER_RADIUS && distance <= DOUBLE_RING_OUTER_RADIUS) return sector * 2;
+  if (distance <= OUTER_SINGLE_RADIUS || distance < DOUBLE_RING_INNER_RADIUS) return sector;
 
   return 0;
-}
-
-function getSectorScore(dx: number, dy: number) {
-  let angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-  angle += 90;
-
-  if (angle < 0) {
-    angle += 360;
-  }
-
-  const sectorIndex = Math.floor((angle + 9) / 18) % 20;
-
-  return sectors[sectorIndex];
 }
