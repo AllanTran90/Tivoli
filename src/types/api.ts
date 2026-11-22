@@ -35,18 +35,23 @@ export interface GameResult {
   moneyWon: number;
 }
 
-export interface ReactionReward {
-  reward: number;
-  message: string;
-  confetti: boolean;
-}
+export type BankKind = "loopland" | "tivoli";
 
 export interface PlayApiResponse {
   success: boolean;
+  bank?: BankKind;
   result?: GameResult;
+  resultNumber?: number;
+  /** Nytt saldo, bara i Tivoli-banken (Loopland har sitt eget saldo). */
+  balance?: number;
   transaction?: TransactionResponse;
   payout?: PayoutResponse | null;
-  resultNumber?: number;
+  error?: string;
+}
+
+export interface WalletApiResponse {
+  success: boolean;
+  balance?: number;
   error?: string;
 }
 

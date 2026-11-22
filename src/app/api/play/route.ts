@@ -1,47 +1,53 @@
 import { NextResponse } from "next/server";
-import { handleDarts } from "@/lib/games/darts";
-import { handleChocolateWheel } from "@/lib/games/chocolateWheel";
-import { handleReactionRush } from "@/lib/games/reactionRush";
 import { createTransaction, payoutTransaction } from "@/lib/centralBanken";
-import type { GameResult } from "@/types/api";
+import { resolveGame, payoutFor } from "@/lib/games/rules";
+import { getOrCreateGuestId, guestAccountId } from "@/lib/server/guest";
+import { playRound, InsufficientFundsError, BankUnavailableError } from "@/lib/server/tivoliBank";
+import type { PlayApiResponse } from "@/types/api";
+import { validatePlayRequest } from "./validate";
 
-export async function POST(request: Request): Promise<NextResponse> {
+function fail(error: string, status: number): NextResponse<PlayApiResponse> {
+  return NextResponse.json({ success: false, error }, { status });
+}
+
+export async function POST(request: Request): Promise<NextResponse<PlayApiResponse>> {
+  let rawBody: unknown;
   try {
-    const body = await request.json() as {
-      game: string;
-      amount: number;
-      identityToken: string;
-      score?: number;
-      reactionTime?: number;
-      selectedNumber?: number;
-      multiplier?: number;
-    };
+    rawBody = await request.json();
+  } catch {
+    return fail("Invalid JSON body", 400);
+  }
 
-    const { game } = body;
-    let result: GameResult;
-    let resultNumber: number | undefined;
+  const validation = validatePlayRequest(rawBody);
+  if (!validation.ok) return fail(validation.error, 400);
 
-    if (game === "darts") {
-      result = handleDarts(body.score ?? 0);
-    } else if (game === "chocolate-wheel") {
-      resultNumber = Math.ceil(Math.random() * 6);
-      result = handleChocolateWheel(body.selectedNumber ?? 0, resultNumber, body.multiplier ?? 1);
-    } else if (game === "reaction-rush") {
-      result = handleReactionRush(body.reactionTime ?? 0);
-    } else {
-      return NextResponse.json({ error: "Unknown game" }, { status: 400 });
+  const { identityToken, ...input } = validation.data;
+  const round = resolveGame(input);
+  const { bet, result, resultNumber } = round;
+  const payoutAmount = payoutFor(round);
+
+  // Spelare från Loopland: Loopland-Centralbanken hanterar pengarna.
+  if (identityToken) {
+    try {
+      const transaction = await createTransaction(identityToken, bet);
+      const payout =
+        payoutAmount > 0 ? await payoutTransaction(transaction.transaction_id, payoutAmount) : null;
+      return NextResponse.json({ success: true, bank: "loopland", result, resultNumber, transaction, payout });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      return fail(message, 502);
     }
+  }
 
-    const transaction = await createTransaction(body.identityToken, body.amount);
-
-    let payout = null;
-    if (result.moneyWon > 0) {
-      payout = await payoutTransaction(transaction.transaction_id, body.amount + result.moneyWon);
-    }
-
-    return NextResponse.json({ success: true, result, transaction, payout, resultNumber });
+  // Gäster: Tivoli-banken (egen bank i Supabase).
+  try {
+    const accountId = guestAccountId(await getOrCreateGuestId());
+    const balance = await playRound(accountId, input.game, bet, payoutAmount);
+    return NextResponse.json({ success: true, bank: "tivoli", result, resultNumber, balance });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    if (error instanceof InsufficientFundsError) return fail("Not enough hearts", 402);
+    if (!(error instanceof BankUnavailableError)) console.error(error);
+    // Skicka aldrig interna databasfel till klienten.
+    return fail("The Tivoli bank is unavailable right now", 503);
   }
 }
