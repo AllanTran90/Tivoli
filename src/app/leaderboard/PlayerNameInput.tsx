@@ -13,6 +13,7 @@ export default function PlayerNameInput({
     <input
       type="text"
       placeholder="Your name"
+      maxLength={20}
       value={playerName}
       onChange={(e) =>
         setPlayerName(

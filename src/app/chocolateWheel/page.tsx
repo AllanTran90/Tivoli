@@ -9,9 +9,10 @@ import BackToLoopland from "@/components/BackToLoopland";
 import History from "@/components/History";
 import GameSessionBar from "@/components/GameSessionBar";
 import { useChocolateWheel } from "@/hooks/useChocolateWheel";
+import { CHOCOLATE_WHEEL_COST } from "@/lib/games/rules";
 
 const HOW_TO_STEPS = [
-  "Each spin costs 1 ❤️",
+  `Each spin costs ${CHOCOLATE_WHEEL_COST} ❤️`,
   "Choose a number",
   "Spin the wheel",
   "Match the number to win",
@@ -20,7 +21,7 @@ const HOW_TO_STEPS = [
 ];
 
 export default function ChocolateWheel() {
-  const { result, rotation, selectedNumber, setSelectedNumber, history, spin, spinning, userName, bankError, playerName, setPlayerName } = useChocolateWheel();
+  const { result, rotation, selectedNumber, setSelectedNumber, history, spin, canSpin, userName, bankError, playerName, setPlayerName } = useChocolateWheel();
 
   return (
     <div className={styles.container}>
@@ -45,7 +46,7 @@ export default function ChocolateWheel() {
           <Wheel rotation={rotation} />
         </div>
 
-        <GameButton text="SPIN" onClick={spin} disabled={selectedNumber === null || spinning} className={styles.spin} />
+        <GameButton text="SPIN" onClick={spin} disabled={!canSpin} className={styles.spin} />
 
         {result !== null && (
           <p className={result === selectedNumber ? styles.win : styles.lose}>

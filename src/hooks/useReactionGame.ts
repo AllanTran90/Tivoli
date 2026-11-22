@@ -1,32 +1,38 @@
-import confetti from "canvas-confetti";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import triggerWinConfetti from "@/lib/confetti";
 import { useWallet } from "@/context/WalletContext";
 import { useGameSession } from "@/hooks/useGameSession";
-import { getReactionReward } from "@/lib/reactionRush/gameLogic";
+import { useKeyboard } from "@/hooks/useKeyboard";
+import { clampBet, MAX_BET, MIN_BET } from "@/lib/games/rules";
 import { saveScore } from "@/lib/leaderboard";
-import { playGame } from "@/lib/playGame";
 
 export function useReactionGame() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [time, setTime] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [bet, setBet] = useState(1);
+  const [bet, setBetRaw] = useState(MIN_BET);
   const [history, setHistory] = useState<string[]>([]);
 
-  const { plays, setPlays } = useWallet();
+  const wallet = useWallet();
   const session = useGameSession("/reactionRush");
 
+  // Högsta insats: det man har i Tivoli-banken (max MAX_BET). I Loopland-läge vet vi inte saldot.
+  const maxBet = wallet.bank === "tivoli" && wallet.balance !== null ? Math.max(MIN_BET, Math.min(wallet.balance, MAX_BET)) : MAX_BET;
+  const stake = clampBet(bet, maxBet);
+
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying && startTime) {
-      interval = setInterval(() => setCurrentTime((Date.now() - startTime) / 1000), 10);
-    }
+    if (!isPlaying || startTime === null) return;
+    const interval = setInterval(() => setCurrentTime((Date.now() - startTime) / 1000), 10);
     return () => clearInterval(interval);
   }, [isPlaying, startTime]);
 
   function startGame(): void {
-    if (bet > plays) return;
+    if (!wallet.canAfford(stake)) {
+      session.setBankError("Not enough hearts");
+      return;
+    }
+    session.setBankError(null);
     setTime(null);
     setCurrentTime(0);
     setStartTime(Date.now());
@@ -34,30 +40,31 @@ export function useReactionGame() {
   }
 
   async function stopGame(): Promise<void> {
-    if (!startTime) return;
-    setTime(currentTime);
+    if (startTime === null) return;
+    // Exakt tid vid tryckningen, inte timerns senaste uppdatering.
+    const elapsed = Math.max(0.01, (Date.now() - startTime) / 1000);
     setIsPlaying(false);
-    const difference = Math.abs(10 - currentTime).toFixed(2);
-    setHistory((prev) => [`⏱️ ${currentTime.toFixed(2)}s | Diff: ${difference}s`, ...prev]);
+    setCurrentTime(elapsed);
+    setTime(elapsed);
 
-    const result = getReactionReward(currentTime, bet);
-    await saveScore("reactionRush", session.playerName || "Anonymous", parseFloat(currentTime.toFixed(2)));
-
-    if (session.identityToken) {
-      const apiResult = await playGame({ game: "reaction-rush", reactionTime: currentTime, amount: bet, identityToken: session.identityToken });
-      if (apiResult.success && apiResult.transaction) {
-        const deducted = apiResult.transaction.amount;
-        const credited = apiResult.payout?.amount ?? 0;
-        await setPlays(plays + credited - deducted);
-      } else {
-        session.setBankError(apiResult.error ?? "Betalning misslyckades");
-      }
-    } else {
-      await setPlays(plays + result.reward);
+    const response = await wallet.play({ game: "reaction-rush", reactionTime: elapsed, amount: stake });
+    if (!response.success || !response.result) {
+      session.setBankError(response.error ?? "Betalning misslyckades");
+      setHistory((prev) => [`⏱️ ${elapsed.toFixed(2)}s | ❌ ${response.error ?? "Error"}`, ...prev]);
+      return;
     }
 
-    if (result.confetti) confetti({ particleCount: 150, spread: 120 });
-    setHistory((prev) => [result.message, ...prev]);
+    wallet.settle(response);
+    const won = response.result.moneyWon;
+    const change = won > 0 ? `+${won}` : `-${stake}`;
+    setHistory((prev) => [`⏱️ ${elapsed.toFixed(2)}s | ${response.result!.reward} (${change} ❤️)`, ...prev]);
+    if (won > 0) triggerWinConfetti();
+    await saveScore("reactionRush", session.playerName || "Anonymous", parseFloat(elapsed.toFixed(2)));
+  }
+
+  function handleGame(): void {
+    if (isPlaying) void stopGame();
+    else startGame();
   }
 
   function reset(): void {
@@ -67,10 +74,11 @@ export function useReactionGame() {
     setIsPlaying(false);
   }
 
-  const handleGame = useCallback(async () => {
-    if (isPlaying) await stopGame();
-    else startGame();
-  }, [isPlaying, currentTime]);
+  useKeyboard({ Space: handleGame });
 
-  return { currentTime, time, isPlaying, bet, setBet, history, plays, handleGame, reset, ...session };
+  function setBet(value: number): void {
+    setBetRaw(clampBet(value, maxBet));
+  }
+
+  return { currentTime, time, isPlaying, bet: stake, maxBet, setBet, history, balance: wallet.balance, handleGame, reset, ...session };
 }

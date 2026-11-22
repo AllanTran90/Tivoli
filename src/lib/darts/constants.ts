@@ -41,11 +41,6 @@ export const sectors = [
   11, 14, 9, 12, 
 ];
 
-export const DARTS_COST = 3;
+export const WINDS = ["Left", "Right", "Up", "Down"] as const;
 
-export const WINDS = [
-  "Left",
-  "Right",
-  "Up",
-  "Down",
-];
+export type Wind = (typeof WINDS)[number];

@@ -1,4 +1,4 @@
-import { CENTER, OUTER_BOARD_RADIUS } from "./constants";
+import { BOARD_SIZE, CENTER, OUTER_BOARD_RADIUS } from "./constants";
 import { drawWedges } from "./drawWedges";
 import { drawTripleRing, drawDoubleRing } from "./drawRings";
 import { drawBullseye } from "./drawBullseye";
@@ -6,7 +6,7 @@ import { drawSectorLines } from "./drawSectorLines";
 import { drawNumbers } from "./drawNumbers";
 
 export function drawBoard(ctx: CanvasRenderingContext2D) {
-  ctx.clearRect(0, 0, 600, 600);
+  ctx.clearRect(0, 0, BOARD_SIZE, BOARD_SIZE);
 
   // outer board
 

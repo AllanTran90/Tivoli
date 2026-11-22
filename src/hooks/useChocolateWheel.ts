@@ -2,7 +2,18 @@ import { useState } from "react";
 import triggerWinConfetti from "@/lib/confetti";
 import { useWallet } from "@/context/WalletContext";
 import { useGameSession } from "@/hooks/useGameSession";
-import { playGame } from "@/lib/playGame";
+import { CHOCOLATE_WHEEL_COST } from "@/lib/games/rules";
+
+const SPIN_MS = 1200;
+const SLICE = 360 / 6;
+
+/** Ny rotation så att hjulet stannar på `number` efter minst 3 varv. */
+function rotationFor(number: number, currentRotation: number): number {
+  const targetAngle = 300 - ((number - 1) * SLICE + SLICE / 2);
+  let delta = targetAngle - (currentRotation % 360);
+  if (delta < 0) delta += 360;
+  return currentRotation + delta + 3 * 360;
+}
 
 export function useChocolateWheel() {
   const [result, setResult] = useState<number | null>(null);
@@ -11,79 +22,40 @@ export function useChocolateWheel() {
   const [history, setHistory] = useState<string[]>([]);
   const [spinning, setSpinning] = useState(false);
 
-  const { plays, setPlays } = useWallet();
+  const wallet = useWallet();
   const session = useGameSession("/chocolateWheel");
-
-  function animateToNumber(random: number, currentRotation: number): void {
-    const sliceSize = 360 / 6;
-    const sliceCenter = (random - 1) * sliceSize + sliceSize / 2;
-    const targetAngle = 300 - sliceCenter;
-    const current = currentRotation % 360;
-    let delta = targetAngle - current;
-    if (delta < 0) delta += 360;
-    setRotation(currentRotation + delta + 3 * 360);
-  }
+  const canSpin = selectedNumber !== null && !spinning && wallet.canAfford(CHOCOLATE_WHEEL_COST);
 
   async function spin(): Promise<void> {
-    if (plays <= 0 || selectedNumber === null || spinning) return;
+    if (!canSpin || selectedNumber === null) return;
     session.setBankError(null);
     setSpinning(true);
 
-    if (!session.identityToken) {
-      // No bank — generate random locally
-      const random = Math.ceil(Math.random() * 6);
-      animateToNumber(random, rotation);
-      setTimeout(async () => {
-        setResult(random);
-        if (random === selectedNumber) {
-          triggerWinConfetti();
-          await setPlays(plays + 1);
-          setHistory((prev) => [`WIN 🎉 | Number: ${random} | +2 ❤️`, ...prev]);
-        } else {
-          await setPlays(plays - 1);
-          setHistory((prev) => [`LOSS 😢 | Number: ${random} | -1 ❤️`, ...prev]);
-        }
-        setSpinning(false);
-      }, 1200);
-      return;
-    }
+    const response = await wallet.play({ game: "chocolate-wheel", selectedNumber });
+    const { result: gameResult, resultNumber } = response;
 
-    const apiResult = await playGame({
-      game: "chocolate-wheel",
-      amount: 1,
-      identityToken: session.identityToken,
-      selectedNumber,
-      multiplier: 3,
-    });
-
-    if (!apiResult.success || apiResult.resultNumber === undefined) {
-      session.setBankError(apiResult.error ?? "Betalning misslyckades");
+    if (!response.success || !gameResult || resultNumber === undefined) {
+      session.setBankError(response.error ?? "Betalning misslyckades");
       setSpinning(false);
       return;
     }
 
-    const random = apiResult.resultNumber;
-    const currentRotation = rotation;
+    setRotation((current) => rotationFor(resultNumber, current));
 
-    // Sync local plays with bank: credited - deducted
-    const deducted = apiResult.transaction?.amount ?? 1;
-    const credited = apiResult.payout?.amount ?? 0;
-    const delta = credited - deducted;
-
-    animateToNumber(random, currentRotation);
-
-    setTimeout(async () => {
-      setResult(random);
-      await setPlays(plays + delta);
-      if (random === selectedNumber) {
-        triggerWinConfetti();
-        setHistory((prev) => [`WIN 🎉 | Number: ${random} | +2 ❤️`, ...prev]);
-      } else {
-        setHistory((prev) => [`LOSS 😢 | Number: ${random} | -1 ❤️`, ...prev]);
-      }
+    setTimeout(() => {
+      const won = gameResult.moneyWon > 0;
+      setResult(resultNumber);
+      wallet.settle(response);
+      if (won) triggerWinConfetti();
+      setHistory((prev) => [
+        won
+          ? `WIN 🎉 | Number: ${resultNumber} | +${gameResult.moneyWon} ❤️`
+          : `LOSS 😢 | Number: ${resultNumber} | -${CHOCOLATE_WHEEL_COST} ❤️`,
+        ...prev,
+      ]);
       setSpinning(false);
-    }, 1200);
+    }, SPIN_MS);
   }
 
-  return { result, rotation, selectedNumber, setSelectedNumber, history, spin, spinning, plays, ...session };
+  return { result, rotation, selectedNumber, setSelectedNumber, history, spin, canSpin, ...session };
 }

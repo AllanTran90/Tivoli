@@ -1,71 +1,98 @@
 import { useState } from "react";
-import confetti from "canvas-confetti";
+import triggerWinConfetti from "@/lib/confetti";
 import { useWallet } from "@/context/WalletContext";
 import { useGameSession } from "@/hooks/useGameSession";
-import { useKeyboardAim } from "@/lib/darts/useKeyboardAim";
-import { DARTS_COST, WINDS } from "@/lib/darts/constants";
-import { resetDartsRound } from "@/lib/darts/resetDartsRound";
+import { useKeyboard } from "@/hooks/useKeyboard";
+import { BOARD_SIZE, CENTER, WINDS, type Wind } from "@/lib/darts/constants";
+import { calculateScore } from "@/lib/darts/scoring";
+import { DARTS_COST } from "@/lib/games/rules";
 import { saveScore } from "@/lib/leaderboard";
-import { playGame } from "@/lib/playGame";
+import type { HitPosition } from "@/types/darts";
+
+const THROWS_PER_ROUND = 3;
+const AIM_STEP = 10;
+
+function getRandomWind(): Wind {
+  return WINDS[Math.floor(Math.random() * WINDS.length)];
+}
+
+function applyWind({ x, y }: HitPosition, wind: Wind): HitPosition {
+  const strength = Math.floor(Math.random() * 20) + 5;
+  if (wind === "Left") return { x: x - strength, y };
+  if (wind === "Right") return { x: x + strength, y };
+  if (wind === "Up") return { x, y: y - strength };
+  return { x, y: y + strength };
+}
+
+const clampAim = (value: number) => Math.max(0, Math.min(BOARD_SIZE, value));
 
 export function useDartsGame() {
   const [score, setScore] = useState(0);
-  const [throwsLeft, setThrowsLeft] = useState(3);
+  const [throwsLeft, setThrowsLeft] = useState(THROWS_PER_ROUND);
+  const [hits, setHits] = useState<HitPosition[]>([]);
   const [history, setHistory] = useState<string[]>([]);
-  const [clearBoard, setClearBoard] = useState(false);
-  const [wind, setWind] = useState("Left");
-  const [aimX, setAimX] = useState(300);
-  const [aimY, setAimY] = useState(300);
-  const [keyboardThrow, setKeyboardThrow] = useState(false);
+  const [wind, setWind] = useState<Wind>("Left");
+  const [aimX, setAimX] = useState(CENTER);
+  const [aimY, setAimY] = useState(CENTER);
 
-  const { plays, setPlays } = useWallet();
+  const wallet = useWallet();
   const session = useGameSession("/darts");
 
-  function getRandomWind(): string {
-    return WINDS[Math.floor(Math.random() * WINDS.length)];
+  // En ny omgång kräver att man har råd. Påbörjade omgångar får alltid spelas klart.
+  const roundStarted = throwsLeft < THROWS_PER_ROUND;
+  const canThrow = throwsLeft > 0 && (roundStarted || wallet.canAfford(DARTS_COST));
+
+  async function finishRound(finalScore: number): Promise<void> {
+    const response = await wallet.play({ game: "darts", score: finalScore });
+    if (!response.success || !response.result) {
+      session.setBankError(response.error ?? "Betalning misslyckades");
+      return;
+    }
+    wallet.settle(response);
+    const won = response.result.moneyWon;
+    setHistory((prev) => [...prev, won > 0 ? `🎉 ${finalScore} points → +${won} ❤️` : `${finalScore} points → -${DARTS_COST} ❤️`]);
+    if (won > 0) triggerWinConfetti();
+    await saveScore("darts", session.playerName || "Anonymous", finalScore);
   }
 
-  function throwRandomDart(): void {
-    if (throwsLeft <= 0) return;
-    setKeyboardThrow(true);
-    setTimeout(() => setKeyboardThrow(false), 100);
-  }
+  function throwDart(target: HitPosition): void {
+    if (!canThrow) return;
+    session.setBankError(null);
 
-  useKeyboardAim({ setAimX, setAimY, onThrow: throwRandomDart });
-
-  async function handleScore(points: number): Promise<void> {
-    if (throwsLeft <= 0) return;
+    const hit = applyWind(target, wind);
+    const points = calculateScore(hit);
     const newScore = score + points;
     const newThrowsLeft = throwsLeft - 1;
-    setScore((prev) => prev + points);
-    setHistory((prev) => [...prev, `Throw ${prev.length + 1} → ${points}`]);
-    setThrowsLeft((prev) => prev - 1);
 
-    if (newThrowsLeft <= 0) {
-      if (session.identityToken) {
-        const apiResult = await playGame({ game: "darts", score: newScore, amount: DARTS_COST, identityToken: session.identityToken });
-        if (apiResult.success && apiResult.transaction) {
-          const deducted = apiResult.transaction.amount;
-          const credited = apiResult.payout?.amount ?? 0;
-          await setPlays(plays + credited - deducted);
-        } else {
-          session.setBankError(apiResult.error ?? "Betalning misslyckades");
-        }
-      } else {
-        const heartsWon = newScore >= 150 ? 10 : newScore >= 100 ? 5 : 0;
-        await setPlays(plays - DARTS_COST + heartsWon);
-      }
-      await saveScore("darts", session.playerName || "Anonymous", newScore);
-    }
-
+    setHits((prev) => [...prev, hit]);
+    setScore(newScore);
+    setThrowsLeft(newThrowsLeft);
+    setHistory((prev) => [...prev, `Throw ${THROWS_PER_ROUND - newThrowsLeft} → ${points}`]);
     setWind(getRandomWind());
-    if (newScore >= 150) confetti({ particleCount: 200, spread: 120 });
+
+    if (newThrowsLeft === 0) void finishRound(newScore);
   }
+
+  function throwAtAim(): void {
+    throwDart({ x: aimX, y: aimY });
+  }
+
+  useKeyboard({
+    ArrowUp: () => setAimY((y) => clampAim(y - AIM_STEP)),
+    ArrowDown: () => setAimY((y) => clampAim(y + AIM_STEP)),
+    ArrowLeft: () => setAimX((x) => clampAim(x - AIM_STEP)),
+    ArrowRight: () => setAimX((x) => clampAim(x + AIM_STEP)),
+    Space: throwAtAim,
+  });
 
   function resetRound(): void {
     session.setBankError(null);
-    resetDartsRound(setScore, setHistory, setThrowsLeft, setWind, setClearBoard, getRandomWind);
+    setScore(0);
+    setHits([]);
+    setHistory([]);
+    setThrowsLeft(THROWS_PER_ROUND);
+    setWind(getRandomWind());
   }
 
-  return { score, throwsLeft, history, clearBoard, wind, aimX, aimY, keyboardThrow, plays, handleScore, resetRound, throwRandomDart, ...session };
+  return { score, throwsLeft, hits, history, wind, aimX, aimY, canThrow, throwDart, throwAtAim, resetRound, ...session };
 }
