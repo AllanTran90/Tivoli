@@ -17,11 +17,12 @@ const HOW_TO_STEPS = [
   "Press SPACE or Throw to throw at the green dot",
   "Watch the wind, it pushes your dart",
   "100+ points gives +5 ❤️, 150+ gives +10 ❤️",
-  "Enter an alias to get on the leaderboard 🏆",
+  "Write your name first, it goes on the leaderboard 🏆",
 ];
 
 export default function DartsPage() {
   const { score, throwsLeft, hits, history, wind, aimX, aimY, canThrow, throwDart, throwAtAim, resetRound, ...session } = useDartsGame();
+  const needsName = !session.hasPlayerName && throwsLeft === 3;
 
   return (
     <GameLayout
@@ -42,6 +43,8 @@ export default function DartsPage() {
       <div className={styles.board}>
         <DartBoard hits={hits} aimX={aimX} aimY={aimY} disabled={!canThrow} onThrow={throwDart} />
       </div>
+
+      {needsName && <p className={styles.needsName}>✍️ Write your name to start playing</p>}
 
       <div className={styles.controls}>
         {throwsLeft > 0 ? (

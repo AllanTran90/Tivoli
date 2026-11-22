@@ -127,3 +127,13 @@
   font-size: 1rem;
   font-weight: 400;
 }
+
+.field input[aria-invalid="true"] {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+}
+
+.hint {
+  color: var(--gold);
+  font-weight: 600;
+}

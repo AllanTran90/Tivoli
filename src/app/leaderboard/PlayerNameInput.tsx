@@ -1,22 +1,36 @@
+import { useId } from "react";
 import ui from "@/components/ui.module.css";
+import { MAX_PLAYER_NAME_LENGTH } from "@/lib/leaderboard";
 
 type Props = {
   playerName: string;
   setPlayerName: (name: string) => void;
+  /** Visar en uppmaning när inget namn har skrivits. */
+  missing?: boolean;
 };
 
-export default function PlayerNameInput({ playerName, setPlayerName }: Props) {
+export default function PlayerNameInput({ playerName, setPlayerName, missing = false }: Props) {
+  const hintId = useId();
+
   return (
     <label className={ui.field}>
-      Leaderboard name
+      Your name (for the leaderboard) *
       <input
         type="text"
-        placeholder="Your alias"
-        maxLength={20}
+        placeholder="Enter your name"
+        required
+        maxLength={MAX_PLAYER_NAME_LENGTH}
         autoComplete="nickname"
         value={playerName}
+        aria-invalid={missing || undefined}
+        aria-describedby={missing ? hintId : undefined}
         onChange={(e) => setPlayerName(e.target.value)}
       />
+      {missing && (
+        <span id={hintId} className={ui.hint}>
+          ✍️ Write your name to start playing
+        </span>
+      )}
     </label>
   );
 }

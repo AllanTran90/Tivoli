@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { resolveIdentityToken } from "@/lib/loopland";
 import { useWallet } from "@/context/WalletContext";
+import { cleanPlayerName, MAX_PLAYER_NAME_LENGTH } from "@/lib/leaderboard";
 
 interface GameSession {
   userName: string | null;
   playerName: string;
   setPlayerName: (name: string) => void;
+  /** Sant när spelaren har skrivit ett namn. Krävs för spel med topplista. */
+  hasPlayerName: boolean;
   bankError: string | null;
   setBankError: (error: string | null) => void;
 }
@@ -50,12 +53,17 @@ export function useGameSession(route: string): GameSession {
     if (!identityToken) return;
     let cancelled = false;
     resolveIdentityToken(identityToken).then((data) => {
-      if (!cancelled && data) setUserName(data.user.name);
+      if (cancelled || !data) return;
+      setUserName(data.user.name);
+      // Fyll i Loopland-namnet om spelaren inte redan har skrivit något.
+      setPlayerName((current) => (current.trim() ? current : data.user.name.slice(0, MAX_PLAYER_NAME_LENGTH)));
     });
     return () => {
       cancelled = true;
     };
   }, [identityToken]);
 
-  return { userName, playerName, setPlayerName, bankError, setBankError };
+  const hasPlayerName = cleanPlayerName(playerName) !== null;
+
+  return { userName, playerName, setPlayerName, hasPlayerName, bankError, setBankError };
 }

@@ -8,8 +8,18 @@ export interface LeaderboardEntry {
   created_at?: string;
 }
 
-export async function saveScore(game: string, player: string, score: number): Promise<void> {
-  if (!supabase) return;
+/** Samma gräns som RLS-policyn leaderboard_insert i supabase/migrations. */
+export const MAX_PLAYER_NAME_LENGTH = 20;
+
+/** Trimmar namnet. Returnerar null om det är tomt (då får man inte spela). */
+export function cleanPlayerName(name: string): string | null {
+  const trimmed = name.trim().replace(/\s+/g, " ").slice(0, MAX_PLAYER_NAME_LENGTH);
+  return trimmed === "" ? null : trimmed;
+}
+
+export async function saveScore(game: string, playerName: string, score: number): Promise<void> {
+  const player = cleanPlayerName(playerName);
+  if (!supabase || !player) return;
   const { error } = await supabase.from("leaderboard").insert([{ game, player, score }]);
   if (error) console.error(error);
 }

@@ -28,6 +28,7 @@ export function useReactionGame() {
   }, [isPlaying, startTime]);
 
   function startGame(): void {
+    if (!session.hasPlayerName) return;
     if (!wallet.canAfford(stake)) {
       session.setBankError("Not enough hearts");
       return;
@@ -59,7 +60,7 @@ export function useReactionGame() {
     const change = won > 0 ? `+${won}` : `-${stake}`;
     setHistory((prev) => [`⏱️ ${elapsed.toFixed(2)}s | ${response.result!.reward} (${change} ❤️)`, ...prev]);
     if (won > 0) triggerWinConfetti();
-    await saveScore("reactionRush", session.playerName || "Anonymous", parseFloat(elapsed.toFixed(2)));
+    await saveScore("reactionRush", session.playerName, parseFloat(elapsed.toFixed(2)));
   }
 
   function handleGame(): void {

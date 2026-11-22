@@ -38,9 +38,9 @@ export function useDartsGame() {
   const wallet = useWallet();
   const session = useGameSession("/darts");
 
-  // En ny omgång kräver att man har råd. Påbörjade omgångar får alltid spelas klart.
+  // En ny omgång kräver ett namn och att man har råd. Påbörjade omgångar får alltid spelas klart.
   const roundStarted = throwsLeft < THROWS_PER_ROUND;
-  const canThrow = throwsLeft > 0 && (roundStarted || wallet.canAfford(DARTS_COST));
+  const canThrow = throwsLeft > 0 && (roundStarted || (session.hasPlayerName && wallet.canAfford(DARTS_COST)));
 
   async function finishRound(finalScore: number): Promise<void> {
     const response = await wallet.play({ game: "darts", score: finalScore });
@@ -52,7 +52,7 @@ export function useDartsGame() {
     const won = response.result.moneyWon;
     setHistory((prev) => [...prev, won > 0 ? `🎉 ${finalScore} points → +${won} ❤️` : `${finalScore} points → -${DARTS_COST} ❤️`]);
     if (won > 0) triggerWinConfetti();
-    await saveScore("darts", session.playerName || "Anonymous", finalScore);
+    await saveScore("darts", session.playerName, finalScore);
   }
 
   function throwDart(target: HitPosition): void {

@@ -10,13 +10,13 @@ import { REACTION_RUSH } from "@/lib/games/catalog";
 import styles from "./reactionRush.module.css";
 
 const HOW_TO_STEPS = [
+  "Write your name, it goes on the leaderboard 🏆",
   "Choose your bet",
   "Press SPACE or Play to start the clock",
   "Press SPACE or Stop at exactly 10.00",
   "Exactly 10.00 gives +3 ❤️",
   "Within 0.10 seconds gives +1 ❤️",
   "Otherwise you lose your bet",
-  "Enter an alias to get on the leaderboard 🏆",
 ];
 
 function resultFor(time: number): { label: string; tone: string } {
@@ -50,14 +50,18 @@ export default function ReactionRushPage() {
           {currentTime.toFixed(2)}
         </p>
         <p className={`${styles.result} ${result?.tone ?? ""}`} aria-live="polite">
-          {isPlaying ? "Press SPACE to stop" : (result?.label ?? "Press SPACE to start")}
+          {isPlaying
+            ? "Press SPACE to stop"
+            : !session.hasPlayerName
+              ? "✍️ Write your name to start"
+              : (result?.label ?? "Press SPACE to start")}
         </p>
       </div>
 
       <div className={styles.controls}>
         <BetInput bet={bet} max={maxBet} disabled={isPlaying} onChange={setBet} />
         <div className={styles.buttons}>
-          <GameButton text={isPlaying ? "⏹ Stop" : "▶ Play"} onClick={handleGame} />
+          <GameButton text={isPlaying ? "⏹ Stop" : "▶ Play"} onClick={handleGame} disabled={!isPlaying && !session.hasPlayerName} />
           <GameButton text="Reset" variant="secondary" onClick={reset} disabled={isPlaying} />
         </div>
       </div>

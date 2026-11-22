@@ -70,3 +70,9 @@
     display: none;
   }
 }
+
+.needsName {
+  color: var(--gold);
+  font-weight: 700;
+  text-align: center;
+}
