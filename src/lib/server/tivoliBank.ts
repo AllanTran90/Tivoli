@@ -20,6 +20,19 @@ export class BankUnavailableError extends Error {
   }
 }
 
+/**
+ * Loggar varför banken misslyckades (syns i Vercel → Logs). Skickas aldrig till klienten.
+ * Loggar bara felmeddelanden och felkoder, aldrig nycklar eller konto-id.
+ */
+export function logBankError(context: string, error: unknown): void {
+  const cause = error instanceof Error ? error.cause : undefined;
+  const causeInfo =
+    cause && typeof cause === "object"
+      ? { message: (cause as { message?: string }).message, code: (cause as { code?: string }).code }
+      : undefined;
+  console.error(`[tivoli-bank] ${context}:`, error instanceof Error ? error.message : error, causeInfo ?? "");
+}
+
 export async function getBalance(accountId: string): Promise<number> {
   const { data, error } = await getSupabaseAdmin().rpc("bank_get_balance", { p_user: accountId });
   if (error || typeof data !== "number") throw new BankUnavailableError(error);
