@@ -1,17 +1,14 @@
-"use client";
+import GameCards from "@/components/GameCards";
+import styles from "@/components/PageShell.module.css";
 
-import Link from "next/link";
-
-export default function GamePage() {
+export default function GamesPage() {
   return (
-    <main>
-      <h1>Games</h1>
-
-      <Link href="/chocolateWheel">Chocolate Wheel</Link>
-
-      <Link href="/reactionRush">Reaction Rush</Link>
-
-      <Link href="/darts">Darts</Link>
+    <main className={styles.page}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>🕹️ Games</h1>
+        <p className={styles.lead}>Three machines, one wallet. Pick one and good luck!</p>
+      </header>
+      <GameCards />
     </main>
   );
 }

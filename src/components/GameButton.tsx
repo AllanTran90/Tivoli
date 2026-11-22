@@ -1,21 +1,19 @@
 "use client";
 
-import styles from "./GameButton.module.css";
+import ui from "./ui.module.css";
 
 type Props = {
   text: string;
   disabled?: boolean;
+  variant?: "primary" | "secondary";
   className?: string;
   onClick: () => void;
 };
 
-export default function GameButton({ text, disabled, onClick, className }: Props) {
+export default function GameButton({ text, disabled, variant = "primary", onClick, className }: Props) {
+  const classes = [ui.button, variant === "secondary" && ui.secondary, className].filter(Boolean).join(" ");
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`${styles.button} ${className ?? ""}`}
-    >
+    <button type="button" onClick={onClick} disabled={disabled} className={classes}>
       {text}
     </button>
   );

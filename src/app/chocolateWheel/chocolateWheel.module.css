@@ -1,188 +1,154 @@
-.container {
-  padding: 8px;
-  color: white;
-}
+/* ── Hjulet ───────────────────────────────────────────── */
 
 .wheelContainer {
   position: relative;
-  width: 400px;
-  height: 400px;
-  margin: 20px auto;
+  width: min(380px, 78vw);
+  aspect-ratio: 1;
+  margin-top: 16px;
 }
 
 .wheel {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
-  border: 6px solid black;
-  position: relative;
+  border: 8px solid #2f113d;
+  box-shadow:
+    0 0 0 4px var(--gold),
+    0 0 40px rgba(236, 72, 153, 0.55);
   background: conic-gradient(
-    #ffcc00 0deg 60deg,
-    #ff6666 60deg 120deg,
-    #66ccff 120deg 180deg,
-    #99ff99 180deg 240deg,
-    #ff99ff 240deg 300deg,
-    #ffaa66 300deg 360deg
+    #fbbf24 0deg 60deg,
+    #f472b6 60deg 120deg,
+    #60a5fa 120deg 180deg,
+    #4ade80 180deg 240deg,
+    #c084fc 240deg 300deg,
+    #fb923c 300deg 360deg
   );
-  transition: transform 1.2s ease-out;
+  /* Samma tid som SPIN_MS i useChocolateWheel. */
+  transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* En osynlig "eker" per siffra, roterad till sin tårtbit. Siffran ligger ute vid kanten. */
+.slice {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: 12%;
+}
+
+.sliceText {
+  display: grid;
+  place-items: center;
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 50%;
+  background: rgba(18, 10, 36, 0.75);
+  color: #fff;
+  font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+  font-weight: 800;
 }
 
 .pointer {
   position: absolute;
-  top: -20px;
+  top: -18px;
   left: 50%;
+  z-index: 2;
+  width: 0;
+  height: 0;
   transform: translateX(-50%);
-  font-size: 32px;
-  z-index: 10;
-  color: rgb(5, 0, 0);
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-top: 30px solid var(--gold);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
 }
 
-.sliceText {
+.hub {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform-origin: center;
-  font-weight: bold;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 22%;
+  aspect-ratio: 1;
   transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #2f113d;
+  border: 4px solid var(--gold);
+  font-size: clamp(1.2rem, 5vw, 2rem);
 }
 
-.numberButton {
-  width: 60px;
-  height: 60px;
-  font-size: 28px;
-  margin: 8px;
-  border-radius: 10px;
+/* ── Resultat och kontroller ──────────────────────────── */
+
+.result {
+  min-height: 1.6em;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--muted);
+}
+
+.win {
+  color: var(--green);
+}
+
+.lose {
+  color: var(--red);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.picker {
   border: none;
-  cursor: pointer;
-  font-weight: bold;
-  background: #222;
-  color: white;
-  transition: all 0.2s ease;
+}
+
+.picker legend {
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .numberGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  justify-items: center;
-  margin: 20px auto;
-  max-width: 250px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
 }
 
-.numberButton:hover {
-  transform: scale(1.15);
-  background: gold;
-  color: black;
+.numberButton {
+  aspect-ratio: 1;
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--panel-border);
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 1.4rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s, background-color 0.15s, box-shadow 0.15s;
 }
 
-.selected {
-  background: limegreen;
-  color: black;
-  box-shadow: 0 0 12px lime;
+.numberButton[aria-pressed="true"] {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--on-gold);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
 }
 
-.spin {
-  padding: 18px 40px;
-  font-size: 26px;
-  background: linear-gradient(45deg, gold, orange);
-  color: black;
-  border-radius: 10px;
-  margin-top: 25px;
-  font-weight: bold;
-  box-shadow: 0 0 20px gold;
-}
-
-.spin:hover {
-  transform: scale(1.1);
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 24px;
-  padding: 12px;
-}
-
-.leftPanel {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.centerPanel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.rightPanel {
-  background: #111;
-  padding: 20px;
-  border-radius: 10px;
-  height: fit-content;
-  color: white;
-}
-
-.gameRow {
-  display: flex;
-  justify-content: center;
-}
-
-.win {
-  color: limegreen;
-  font-weight: bold;
-}
-
-.lose {
-  color: red;
-  font-weight: bold;
-}
-
-.historyBox p {
-  font-size: 14px;
-  margin: 2px 0;
-}
-
-.topSection {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-@media (max-width: 768px) {
-  .layout {
-    display: flex;
-    flex-direction: column;
-    padding: 8px;
-    gap: 12px;
+@media (hover: hover) and (pointer: fine) {
+  .numberButton:hover:not([aria-pressed="true"]) {
+    transform: translateY(-2px);
+    background: var(--panel-strong);
   }
+}
 
-  .topSection {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
+@media (max-width: 380px) {
   .numberGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin: 0;
-  }
-
-  .rightPanel {
-    flex: 1;
-    padding: 12px;
-  }
-
-  .wheelContainer {
-    width: 220px;
-    height: 220px;
-    margin: 12px auto;
-  }
-
-  .spin {
-    width: 100%;
-    margin-top: 8px;
+    grid-template-columns: repeat(3, 1fr);
   }
 }

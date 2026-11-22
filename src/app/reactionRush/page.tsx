@@ -1,51 +1,66 @@
 "use client";
 
-import BackToLoopland from "@/components/BackToLoopland";
-import HowToPlay from "@/components/HowToPlay";
-import History from "@/components/History";
-import GameSessionBar from "@/components/GameSessionBar";
 import BetInput from "@/components/BetInput";
 import GameButton from "@/components/GameButton";
-import Module from "@/app/reactionRush/reactionRush.module.css";
+import GameLayout from "@/components/GameLayout";
+import History from "@/components/History";
+import HowToPlay from "@/components/HowToPlay";
 import { useReactionGame } from "@/hooks/useReactionGame";
+import { REACTION_RUSH } from "@/lib/games/catalog";
+import styles from "./reactionRush.module.css";
 
 const HOW_TO_STEPS = [
-  "Press SPACE or Play to start",
-  "Wait carefully",
+  "Choose your bet",
+  "Press SPACE or Play to start the clock",
   "Press SPACE or Stop at exactly 10.00",
-  "10.00 gives +3 ❤️",
-  "Within 0.1 gives +1 ❤️",
+  "Exactly 10.00 gives +3 ❤️",
+  "Within 0.10 seconds gives +1 ❤️",
   "Otherwise you lose your bet",
-  "Write your alias for a chance to enter the leaderboard 🏆",
+  "Enter an alias to get on the leaderboard 🏆",
 ];
 
+function resultFor(time: number): { label: string; tone: string } {
+  const diff = Math.abs(10 - time);
+  if (time.toFixed(2) === "10.00") return { label: "🎯 Perfect!", tone: styles.perfect };
+  if (diff <= 0.1) return { label: "🔥 So close!", tone: styles.close };
+  return { label: `${diff.toFixed(2)}s off`, tone: styles.miss };
+}
+
 export default function ReactionRushPage() {
-  const { currentTime, time, isPlaying, bet, maxBet, setBet, history, balance, handleGame, reset, userName, bankError, playerName, setPlayerName } = useReactionGame();
+  const { currentTime, time, isPlaying, bet, maxBet, setBet, history, handleGame, reset, ...session } = useReactionGame();
+  const result = !isPlaying && time !== null ? resultFor(time) : null;
 
   return (
-    <main>
-      <BackToLoopland />
-      <div className={Module.container}>
-        <div className={Module["center-panel"]}>
-          <h1>⏱️ Reaction Rush</h1>
-          <GameSessionBar userName={userName} bankError={bankError} playerName={playerName} setPlayerName={setPlayerName} />
-          <p>Press SPACE to play</p>
-          <br />
-          <HowToPlay title="How To Play" steps={HOW_TO_STEPS} />
-          <br />
-          <h2>{currentTime.toFixed(2)}</h2>
-          <BetInput bet={bet} max={maxBet} balance={balance} disabled={isPlaying} onChange={setBet} />
-          <GameButton text={isPlaying ? "Stop" : "Play"} onClick={handleGame} />
-          <GameButton text="Reset" onClick={reset} disabled={isPlaying} />
-          {time !== null && (
-            <div>
-              <p>Your Time: {time.toFixed(2)}</p>
-              <p>Difference: {Math.abs(10 - time).toFixed(2)}</p>
-              <History items={history} />
-            </div>
-          )}
+    <GameLayout
+      icon={REACTION_RUSH.icon}
+      title={REACTION_RUSH.name}
+      tagline={REACTION_RUSH.tagline}
+      accent={REACTION_RUSH.accent}
+      {...session}
+      sidebar={
+        <>
+          <HowToPlay steps={HOW_TO_STEPS} />
+          <History items={history} />
+        </>
+      }
+    >
+      <div className={styles.display} data-playing={isPlaying || undefined}>
+        <p className={styles.target}>Target 10.00</p>
+        <p className={styles.timer} aria-live="off">
+          {currentTime.toFixed(2)}
+        </p>
+        <p className={`${styles.result} ${result?.tone ?? ""}`} aria-live="polite">
+          {isPlaying ? "Press SPACE to stop" : (result?.label ?? "Press SPACE to start")}
+        </p>
+      </div>
+
+      <div className={styles.controls}>
+        <BetInput bet={bet} max={maxBet} disabled={isPlaying} onChange={setBet} />
+        <div className={styles.buttons}>
+          <GameButton text={isPlaying ? "⏹ Stop" : "▶ Play"} onClick={handleGame} />
+          <GameButton text="Reset" variant="secondary" onClick={reset} disabled={isPlaying} />
         </div>
       </div>
-    </main>
+    </GameLayout>
   );
 }

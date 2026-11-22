@@ -1,20 +1,69 @@
-.container {
-  background-color: rgb(191, 0, 255);
-  min-height: 100vh;
-  width: 100%;
-  padding: 16px;
-}
-
-.center-panel {
+.display {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: rgb(191, 0, 255);
-  padding: 20px;
-  border-radius: 10px;
-  height: fit-content;
-  color: white;
-  min-height: 80vh;
-  gap: 1rem;
+  gap: 8px;
+  width: 100%;
+  max-width: 560px;
+  padding: 40px 16px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.display[data-playing] {
+  border-color: var(--accent);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.target {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.timer {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: clamp(4rem, 18vw, 8rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.result {
+  min-height: 1.6em;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.perfect {
+  color: var(--gold);
+}
+
+.close {
+  color: var(--green);
+}
+
+.miss {
+  color: var(--red);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
 }

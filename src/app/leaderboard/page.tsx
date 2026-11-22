@@ -1,64 +1,77 @@
 "use client";
 
-import styles from "./leaderboard.module.css";
-import { getLeaderboard, LeaderboardEntry } from "@/lib/leaderboard";
-import GameSelector from "@/app/leaderboard/GameSelector";
 import { useState, useEffect } from "react";
+import { getLeaderboard, type LeaderboardEntry } from "@/lib/leaderboard";
+import GameSelector from "@/app/leaderboard/GameSelector";
+import shell from "@/components/PageShell.module.css";
+import ui from "@/components/ui.module.css";
+import styles from "./leaderboard.module.css";
 
-const RANK_STYLES = ["gold", "silver", "bronze"] as const;
-const GAME_EMOJI: Record<string, string> = {
-  darts: "🎯",
-  chocolateWheel: "🎡",
-  reactionRush: "⏱️",
-};
+const MEDALS = ["🥇", "🥈", "🥉"];
+const RANK_STYLES = [styles.gold, styles.silver, styles.bronze];
 
-function formatScore(game: string, score: number): string {
+function formatScore(game: string, score: number): { main: string; sub?: string } {
   if (game === "reactionRush") {
-    const diff = Math.abs(score - 10).toFixed(2);
-    return `${score.toFixed(2)}s  (Δ ${diff}s)`;
+    return { main: `${score.toFixed(2)}s`, sub: `${Math.abs(score - 10).toFixed(2)}s off` };
   }
-  return String(score);
+  return { main: `${score} pts` };
 }
 
 export default function LeaderboardPage() {
   const [selectedGame, setSelectedGame] = useState("darts");
-  const [players, setPlayers] = useState<LeaderboardEntry[]>([]);
+  const [players, setPlayers] = useState<LeaderboardEntry[] | null>(null);
 
   useEffect(() => {
-    async function loadLeaderboard() {
-      const data = await getLeaderboard(selectedGame);
-      setPlayers(data || []);
-    }
-    loadLeaderboard();
+    let cancelled = false;
+    getLeaderboard(selectedGame).then((data) => {
+      if (!cancelled) setPlayers(data ?? []);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [selectedGame]);
 
-  const emoji = GAME_EMOJI[selectedGame] ?? "🏆";
+  function selectGame(game: string): void {
+    setPlayers(null);
+    setSelectedGame(game);
+  }
 
   return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>🏆 Leaderboard</h1>
-
-      <GameSelector selectedGame={selectedGame} setSelectedGame={setSelectedGame} />
-
-      {selectedGame === "reactionRush" && (
-        <p style={{ textAlign: "center", opacity: 0.7, fontSize: "0.85rem" }}>
-          Closest to 10.00s wins — exact time and distance shown
+    <main className={`${shell.page} ${shell.narrow}`}>
+      <header className={shell.header}>
+        <h1 className={shell.title}>🏆 Leaderboard</h1>
+        <p className={shell.lead}>
+          {selectedGame === "reactionRush"
+            ? "Closest to 10.00 seconds wins."
+            : "Highest score after three darts wins."}
         </p>
-      )}
+      </header>
 
-      <div className={styles.list}>
-        {players.length === 0 && <p>No scores yet {emoji}</p>}
+      <GameSelector selectedGame={selectedGame} setSelectedGame={selectGame} />
 
-        {players.map((player, index) => {
-          const rankStyle = styles[RANK_STYLES[index] ?? "default"] ?? styles.default;
-          return (
-            <div key={player.id} className={`${styles.player} ${rankStyle}`}>
-              <span>{index + 1}. {player.player}</span>
-              <span>{emoji} {formatScore(selectedGame, player.score)}</span>
-            </div>
-          );
-        })}
-      </div>
+      <section className={ui.panel} aria-live="polite">
+        {players === null ? (
+          <p className={ui.empty}>Loading…</p>
+        ) : players.length === 0 ? (
+          <p className={ui.empty}>No scores yet. Be the first!</p>
+        ) : (
+          <ol className={styles.list}>
+            {players.map((player, index) => {
+              const score = formatScore(selectedGame, player.score);
+              return (
+                <li key={player.id} className={`${styles.row} ${RANK_STYLES[index] ?? ""}`}>
+                  <span className={styles.rank}>{MEDALS[index] ?? index + 1}</span>
+                  <span className={styles.name}>{player.player}</span>
+                  <span className={styles.score}>
+                    {score.main}
+                    {score.sub && <small>{score.sub}</small>}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </section>
     </main>
   );
 }

@@ -1,0 +1,40 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 24px;
+  text-align: center;
+  border-top: 4px solid var(--pink);
+}
+
+.label {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.balance {
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--pink);
+  text-shadow: 0 0 32px rgba(236, 72, 153, 0.5);
+}
+
+.hearts {
+  max-width: 32ch;
+  line-height: 1.6;
+  word-break: break-all;
+  margin-bottom: 12px;
+}
+
+.note {
+  max-width: 40ch;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}

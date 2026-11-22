@@ -1,143 +1,191 @@
+/* Startsidan: neon-arcade, mobil först. Desktop från 960px. */
+
 .page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
-}
-
-.main {
-  display: flex;
   flex: 1;
   width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  color: var(--text);
+  padding: 32px 16px 64px;
 }
 
-.intro {
+.page > section {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+/* ── Hero ─────────────────────────────────────────────── */
+
+.hero {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 28px;
+}
+
+.heroText {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
-}
-
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
   gap: 16px;
-  font-size: 14px;
 }
 
-.ctas a {
+.eyebrow {
+  color: var(--gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.85rem;
+}
+
+.title {
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.title span {
+  display: block;
+  background: linear-gradient(90deg, #f472b6, #c084fc 50%, #60a5fa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 38ch;
+}
+
+.actions {
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
   align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: transform 0.15s, background-color 0.15s, box-shadow 0.15s;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
+.primary {
+  background: var(--gold);
+  color: var(--on-gold);
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.45);
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.secondary {
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
 }
 
-/* Enable hover only on non-touch devices */
+.heroImage img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.35);
+}
+
+/* ── Spelkort ─────────────────────────────────────────── */
+
+.games {
+  margin-top: 56px;
+  scroll-margin-top: 24px;
+}
+
+.sectionTitle {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+}
+
+/* ── Info ─────────────────────────────────────────────── */
+
+.info {
+  margin-top: 40px;
+  display: grid;
+  gap: 16px;
+}
+
+.info > div {
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+}
+
+.info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.info p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── Fokus och hover ──────────────────────────────────── */
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
 @media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
+  .primary:hover,
+  .secondary:hover {
+    transform: translateY(-2px);
   }
 
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
+  .secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary,
+  .secondary {
+    transition: none;
   }
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
+/* ── Surfplatta ───────────────────────────────────────── */
 
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
-
+@media (min-width: 640px) {
   .page {
-    --background: #000;
-    --foreground: #000;
+    padding: 48px 32px 80px;
+  }
 
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+  .info {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* ── Desktop ──────────────────────────────────────────── */
+
+@media (min-width: 960px) {
+  .page {
+    padding: 72px 48px 96px;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    align-items: center;
+    gap: 56px;
+  }
+
+  .games {
+    margin-top: 88px;
+  }
+}

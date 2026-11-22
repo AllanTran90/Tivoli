@@ -80,5 +80,5 @@ export function useReactionGame() {
     setBetRaw(clampBet(value, maxBet));
   }
 
-  return { currentTime, time, isPlaying, bet: stake, maxBet, setBet, history, balance: wallet.balance, handleGame, reset, ...session };
+  return { currentTime, time, isPlaying, bet: stake, maxBet, setBet, history, handleGame, reset, ...session };
 }

@@ -2,38 +2,58 @@
 
 import DartBoard from "@/components/darts/DartBoard";
 import GameButton from "@/components/GameButton";
+import GameLayout from "@/components/GameLayout";
 import History from "@/components/History";
-import InfoBar from "@/components/darts/Infobar";
-import ThrowButton from "@/components/darts/throwButton";
 import HowToPlay from "@/components/HowToPlay";
-import BackToLoopland from "@/components/BackToLoopland";
-import GameSessionBar from "@/components/GameSessionBar";
+import InfoBar from "@/components/darts/Infobar";
 import { useDartsGame } from "@/hooks/useDartsGame";
+import { DARTS } from "@/lib/games/catalog";
 import { DARTS_COST } from "@/lib/games/rules";
+import styles from "./darts.module.css";
 
 const HOW_TO_STEPS = [
-  `Each round costs ${DARTS_COST} ❤️`,
-  "You get 3 darts",
-  "Use arrow keys to aim",
-  "Press SPACE or Throw button",
-  "Reach 150 points for +10 ❤️",
-  "Reach 100 points for +5 ❤️",
-  "Write your alias for a chance to enter the leaderboard 🏆",
+  `Each round costs ${DARTS_COST} ❤️ and gives you 3 darts`,
+  "Aim with the arrow keys or click the board",
+  "Press SPACE or Throw to throw at the green dot",
+  "Watch the wind, it pushes your dart",
+  "100+ points gives +5 ❤️, 150+ gives +10 ❤️",
+  "Enter an alias to get on the leaderboard 🏆",
 ];
 
 export default function DartsPage() {
-  const { score, throwsLeft, hits, history, wind, aimX, aimY, canThrow, throwDart, throwAtAim, resetRound, userName, bankError, playerName, setPlayerName } = useDartsGame();
+  const { score, throwsLeft, hits, history, wind, aimX, aimY, canThrow, throwDart, throwAtAim, resetRound, ...session } = useDartsGame();
 
   return (
-    <main className="darts-main">
-      <BackToLoopland />
-      <GameSessionBar userName={userName} bankError={bankError} playerName={playerName} setPlayerName={setPlayerName} />
+    <GameLayout
+      icon={DARTS.icon}
+      title={DARTS.name}
+      tagline={DARTS.tagline}
+      accent={DARTS.accent}
+      {...session}
+      sidebar={
+        <>
+          <HowToPlay steps={HOW_TO_STEPS} />
+          <History title="Throw history" items={history} />
+        </>
+      }
+    >
       <InfoBar score={score} throwsLeft={throwsLeft} wind={wind} />
-      <DartBoard hits={hits} aimX={aimX} aimY={aimY} disabled={!canThrow} onThrow={throwDart} />
-      <ThrowButton onThrow={throwAtAim} />
-      <HowToPlay title="How To Play" steps={HOW_TO_STEPS} />
-      <History title="Throw History" items={history} />
-      {throwsLeft <= 0 && <GameButton text="Play Again" onClick={resetRound} />}
-    </main>
+
+      <div className={styles.board}>
+        <DartBoard hits={hits} aimX={aimX} aimY={aimY} disabled={!canThrow} onThrow={throwDart} />
+      </div>
+
+      <div className={styles.controls}>
+        {throwsLeft > 0 ? (
+          <GameButton text="🎯 Throw dart" onClick={throwAtAim} disabled={!canThrow} />
+        ) : (
+          <GameButton text="Play again" onClick={resetRound} />
+        )}
+      </div>
+
+      <p className={styles.hint}>
+        <kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> aim · <kbd>Space</kbd> throw
+      </p>
+    </GameLayout>
   );
 }

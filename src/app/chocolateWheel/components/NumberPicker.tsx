@@ -7,21 +7,22 @@ type Props = {
 
 export default function NumberPicker({ selected, onSelect }: Props) {
   return (
-    <div role="group" aria-label="Choose a number">
-      <p>Choose a number:</p>
+    <fieldset className={styles.picker}>
+      <legend>Choose your number</legend>
       <div className={styles.numberGrid}>
         {[1, 2, 3, 4, 5, 6].map((num) => (
           <button
             key={num}
+            type="button"
             onClick={() => onSelect(num)}
             aria-pressed={selected === num}
             aria-label={`Number ${num}`}
-            className={`${styles.numberButton} ${selected === num ? styles.selected : ""}`}
+            className={styles.numberButton}
           >
             {num}
           </button>
         ))}
       </div>
-    </div>
+    </fieldset>
   );
 }

@@ -14,7 +14,7 @@ export default function InfoBar({ score, throwsLeft, wind }: Props) {
         <span className={styles.infoValue}>{score}</span>
       </div>
       <div className={styles.infoItem}>
-        <span className={styles.infoLabel}>Throw Left</span>
+        <span className={styles.infoLabel}>Darts left</span>
         <span className={styles.infoValue}>{throwsLeft}</span>
       </div>
       <div className={styles.infoItem}>

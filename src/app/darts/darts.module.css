@@ -1,68 +1,72 @@
-.main {
-  min-height: 100vh;
-  background: #5232a3ff;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  padding: 40px;
-  flex-wrap: wrap;
-}
-
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 400px;
-  width: 100%;
-}
-
 .board {
   width: 100%;
-  max-width: 600px;
+  max-width: 560px;
 }
 
-@media (max-width: 768px) {
-  .main {
-    flex-direction: column;
-    padding: 16px;
-    align-items: center;
-  }
-
-  .board {
-    max-width: 100%;
-  }
-
-  .sidebar {
-    max-width: 100%;
-  }
+.controls {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 360px;
 }
+
+.controls > * {
+  width: 100%;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.hint kbd {
+  display: inline-block;
+  min-width: 26px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-strong);
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+/* InfoBar (components/darts/Infobar.tsx) */
 
 .infoBar {
-  display: flex;
-  justify-content: space-around;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  max-width: 560px;
+  gap: 8px;
 }
 
 .infoItem {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .infoLabel {
-  font-size: 11px;
-  opacity: 0.7;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: var(--muted);
 }
 
 .infoValue {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hint om tangentbord visas bara på enheter med tangentbord/mus. */
+@media (hover: none) {
+  .hint {
+    display: none;
+  }
 }

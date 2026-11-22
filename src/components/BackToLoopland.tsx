@@ -13,11 +13,11 @@ export default function BackToLoopland() {
   }
 
   return (
-    <button
+    <button type="button"
       className={styles.backButton}
       onClick={handleBack}
     >
-      Back to Loopland
+      ← Back to Loopland
     </button>
   );
 }

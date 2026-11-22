@@ -1,12 +1,21 @@
 .backButton {
-  width: 100%;
-  padding: 1rem;
-  margin-top: 1rem;
-  border: none;
-  border-radius: 12px;
-  background: gold;
-  color: black;
-  font-size: 1.2rem;
-  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  color: var(--muted);
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .backButton:hover {
+    background: var(--panel-strong);
+    color: var(--text);
+  }
 }
