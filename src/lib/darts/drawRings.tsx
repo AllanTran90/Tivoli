@@ -1,6 +1,7 @@
 import {
   CENTER,
   sectors,
+  sectorArc,
   TRIPLE_RING_INNER_RADIUS,
   TRIPLE_RING_OUTER_RADIUS,
   DOUBLE_RING_INNER_RADIUS,
@@ -9,9 +10,7 @@ import {
 
 export function drawTripleRing(ctx: CanvasRenderingContext2D) {
   sectors.forEach((_, index) => {
-    const startAngle = (index * 18 - 90) * (Math.PI / 180);
-
-    const endAngle = ((index + 1) * 18 - 90) * (Math.PI / 180);
+    const [startAngle, endAngle] = sectorArc(index);
 
     ctx.beginPath();
 
@@ -36,9 +35,7 @@ export function drawTripleRing(ctx: CanvasRenderingContext2D) {
 
 export function drawDoubleRing(ctx: CanvasRenderingContext2D) {
   sectors.forEach((_, index) => {
-    const startAngle = (index * 18 - 90) * (Math.PI / 180);
-
-    const endAngle = ((index + 1) * 18 - 90) * (Math.PI / 180);
+    const [startAngle, endAngle] = sectorArc(index);
 
     ctx.beginPath();
 

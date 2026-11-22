@@ -1,8 +1,9 @@
-import { CENTER, sectors } from "./constants";
+import { CENTER, SECTOR_DEGREES, sectors, sectorStartDegrees, toCanvasRadians } from "./constants";
 
 export function drawNumbers(ctx: CanvasRenderingContext2D) {
   sectors.forEach((number, index) => {
-    const angle = (index * 18 - 81) * (Math.PI / 180);
+    // Siffran mitt i sin sektor.
+    const angle = toCanvasRadians(sectorStartDegrees(index) + SECTOR_DEGREES / 2);
 
     const x = CENTER + Math.cos(angle) * 275;
 

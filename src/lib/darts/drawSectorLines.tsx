@@ -3,11 +3,12 @@ import {
   INNER_SINGLE_RADIUS,
   OUTER_BOARD_RADIUS,
   sectors,
+  sectorArc,
 } from "./constants";
 
 export function drawSectorLines(ctx: CanvasRenderingContext2D) {
   sectors.forEach((_, index) => {
-    const angle = (index * 18 - 90) * (Math.PI / 180);
+    const [angle] = sectorArc(index);
 
     const startX = CENTER + Math.cos(angle) * INNER_SINGLE_RADIUS;
 

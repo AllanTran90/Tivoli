@@ -9,19 +9,16 @@ import {
   DOUBLE_RING_INNER_RADIUS,
   DOUBLE_RING_OUTER_RADIUS,
   sectors,
+  SECTOR_DEGREES,
+  sectorStartDegrees,
 } from "./constants";
 import type { HitPosition } from "@/types/darts";
 
-const SECTOR_DEGREES = 360 / sectors.length; // 18°
-
-/**
- * Sektor i ritas från (i * 18)° till ((i + 1) * 18)°, medurs från toppen
- * (se drawWedges/drawRings/drawSectorLines). Poängen måste räknas med samma vinklar.
- */
+/** Vilken sektor en träff ligger i. Samma vinklar som ritkoden, via sectorStartDegrees(). */
 function getSectorScore(dx: number, dy: number): number {
-  let angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90; // 0° = uppåt, medurs
-  if (angle < 0) angle += 360;
-  return sectors[Math.floor(angle / SECTOR_DEGREES) % sectors.length];
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90; // 0° = uppåt, medurs
+  const fromFirstSector = (((angle - sectorStartDegrees(0)) % 360) + 360) % 360;
+  return sectors[Math.floor(fromFirstSector / SECTOR_DEGREES) % sectors.length];
 }
 
 export function calculateScore(hit: HitPosition): number {

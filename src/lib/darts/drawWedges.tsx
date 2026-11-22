@@ -3,13 +3,12 @@ import {
   INNER_SINGLE_RADIUS,
   OUTER_SINGLE_RADIUS,
   sectors,
+  sectorArc,
 } from "./constants";
 
 export function drawWedges(ctx: CanvasRenderingContext2D) {
   sectors.forEach((_, index) => {
-    const startAngle = (index * 18 - 90) * (Math.PI / 180);
-
-    const endAngle = ((index + 1) * 18 - 90) * (Math.PI / 180);
+    const [startAngle, endAngle] = sectorArc(index);
 
     ctx.beginPath();
 
@@ -25,7 +24,8 @@ export function drawWedges(ctx: CanvasRenderingContext2D) {
 
     ctx.closePath();
 
-    ctx.fillStyle = index % 2 === 0 ? "#d8d2b0" : "black";
+    // Som en riktig tavla: 20 är svart, sedan varannan ljus.
+    ctx.fillStyle = index % 2 === 0 ? "black" : "#d8d2b0";
 
     ctx.fill();
   });
