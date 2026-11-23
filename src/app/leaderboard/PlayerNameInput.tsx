@@ -25,11 +25,17 @@ export default function PlayerNameInput({ playerName, setPlayerName, missing = f
         aria-invalid={missing || undefined}
         aria-describedby={missing ? hintId : undefined}
         onChange={(e) => setPlayerName(e.target.value)}
+        onKeyDown={(e) => {
+          // Enter lämnar fältet, så att SPACE och pilarna går till spelet igen.
+          if (e.key === "Enter" || e.key === "Escape") e.currentTarget.blur();
+        }}
       />
-      {missing && (
+      {missing ? (
         <span id={hintId} className={ui.hint}>
           ✍️ Write your name to start playing
         </span>
+      ) : (
+        <span className={ui.subtle}>Press Enter when you are done</span>
       )}
     </label>
   );
